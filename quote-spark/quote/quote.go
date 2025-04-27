@@ -1,4 +1,4 @@
-package main
+package quote
 
 import (
 	"bufio"
@@ -12,7 +12,7 @@ const quotesFilePath = "./data/quotes.txt"
 
 var inspirationalQuotes []string
 
-func generateRandomQuote() string {
+func GenerateRandomQuote() string {
 	if len(inspirationalQuotes) == 0 {
 		quotes, err := loadQuotes()
 		if err != nil {

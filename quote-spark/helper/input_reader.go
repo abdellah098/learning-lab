@@ -1,4 +1,4 @@
-package main
+package helper
 
 import (
 	"bufio"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func promptUser(sr *bufio.Scanner) bool {
+func PromptUser(sr *bufio.Scanner) bool {
 	fmt.Println("Would you like an inspirational quote? (yes/no, or 'q' to quit)")
 	fmt.Print("> ")
 
@@ -25,5 +25,5 @@ func promptUser(sr *bufio.Scanner) bool {
 	}
 
 	fmt.Println("Invalid input. Please enter 'yes', 'no', or 'q'.")
-	return promptUser(sr)
+	return PromptUser(sr)
 }

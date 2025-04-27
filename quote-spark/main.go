@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"quote-spark/helper"
+	quoteGenarator "quote-spark/quote"
 )
 
 func main() {
@@ -12,12 +14,12 @@ func main() {
 	sr := bufio.NewScanner(os.Stdin)
 
 	for {
-		if !promptUser(sr) {
+		if !helper.PromptUser(sr) {
 			fmt.Println("Goodbye, keep coding!.")
 			break
 		}
 
-		quote := generateRandomQuote()
+		quote := quoteGenarator.GenerateRandomQuote()
 		fmt.Printf("\n💡 %s\n\n", quote)
 	}
 }
