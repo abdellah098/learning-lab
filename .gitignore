@@ -5,3 +5,5 @@
 # IDE/editor settings
 .idea/
 
+digital-growth-api/dist
+digital-growth-api/node_modules

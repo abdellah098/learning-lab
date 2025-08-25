@@ -1,0 +1,36 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: project_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: project_db
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-net
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: project_mongo_express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    depends_on:
+      - mongodb
+    networks:
+      - app-net
+
+volumes:
+  mongodb_data:
+
+networks:
+  app-net:
+    driver: bridge
