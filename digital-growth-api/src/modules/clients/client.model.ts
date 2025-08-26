@@ -2,8 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IClient extends Document {
   name: string;
-  contactPerson?: string;
-  contactEmail?: string;
+  contactPerson: string;
+  contactEmail: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -18,10 +18,12 @@ const clientSchema = new Schema<IClient>({
   },
   contactPerson: {
     type: String,
+    required: true,
     trim: true,
   },
   contactEmail: {
     type: String,
+    required: true,
     trim: true,
     lowercase: true,
     validate: {
