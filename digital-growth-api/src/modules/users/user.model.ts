@@ -2,9 +2,10 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { hashPassword, comparePassword } from '../../common/utils';
 import { ROLES } from '../../common/constants';
 import { RefreshTokenData } from '../../types';
+import { string } from 'zod';
 
 export interface IUser extends Document {
-  _id: mongoose.Types.ObjectId; // Add this line
+  _id: mongoose.Types.ObjectId;
   email: string;
   password: string;
   firstName: string;
@@ -12,6 +13,7 @@ export interface IUser extends Document {
   role: string;
   isActive: boolean;
   lastLogin?: Date;
+  defaultPassword: string;
   refreshTokens: RefreshTokenData[];
   comparePassword(password: string): Promise<boolean>;
 }
@@ -57,6 +59,11 @@ const userSchema = new Schema<IUser>({
     type: Boolean,
     default: true,
     index: true,
+  },
+  defaultPassword: {
+    type: String,
+    required: false,
+    select: true,
   },
   lastLogin: Date,
   refreshTokens: [refreshTokenSchema],

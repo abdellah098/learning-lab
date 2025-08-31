@@ -103,3 +103,14 @@ export function buildFilterQuery(filters: Record<string, any>): Record<string, a
 
   return query;
 }
+
+export const generateFriendlyPassword = (): string => {
+  const adjectives = ['Quick', 'Bright', 'Swift', 'Smart', 'Bold'];
+  const nouns = ['Tiger', 'Eagle', 'Storm', 'Ocean', 'Mountain'];
+  const numbers = Math.floor(Math.random() * 100);
+  
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  
+  return `${adj}${noun}${numbers}`;
+};

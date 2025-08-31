@@ -1,12 +1,18 @@
 import { User, IUser } from './user.model';
 import { ApiError } from '../../common/errors';
-import { buildSortQuery, buildFilterQuery, sanitizeUser } from '../../common/utils';
+import { buildSortQuery, buildFilterQuery, sanitizeUser, generateFriendlyPassword } from '../../common/utils';
 import { DEFAULT_PAGINATION, ROLES } from '../../common/constants';
 import { AuthUser } from '../../types';
 
 export class UserService {
   static async createUser(userData: Partial<IUser>): Promise<any> {
     try {
+
+      if (!userData.defaultPassword) {
+        userData.defaultPassword = generateFriendlyPassword();
+      }
+      userData.password = await userData.defaultPassword;
+      
       const user = new User(userData);
       await user.save();
       return sanitizeUser(user);
