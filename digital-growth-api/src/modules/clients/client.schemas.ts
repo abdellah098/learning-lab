@@ -28,8 +28,8 @@ export const getClientSchema = {
 
 export const listClientsSchema = {
   query: z.object({
-    page: z.string().transform(Number).default('1'),
-    limit: z.string().transform(Number).default('20'),
+    page: z.string().transform(Number).default('1').optional(),
+    limit: z.string().transform(Number).default('20').optional(),
     sort: z.string().optional(),
     isActive: z.string().transform(val => val === 'true').optional(),
     search: z.string().optional(),
