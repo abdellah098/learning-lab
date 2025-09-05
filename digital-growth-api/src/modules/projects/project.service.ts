@@ -9,7 +9,6 @@ import { AuthUser } from '../../types';
 
 export class ProjectService {
   static async createProject(projectData: Partial<IProject>): Promise<IProject> {
-    // Verify client exists and is active
     const client = await Client.findOne({ _id: projectData.clientId, isActive: true });
     if (!client) {
       throw ApiError.badRequest('Client not found or inactive');

@@ -8,7 +8,13 @@ export const createProjectSchema = {
     channel: z.string().min(1, 'Channel is required').trim(),
     status: z.enum(Object.values(PROJECT_STATUS) as [string, ...string[]]).optional(),
     clientId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid client ID').optional(),
-    search: z.string().optional(),
+    objectives: z.array(z.object({
+      title: z.string().min(1, 'Objective title is required').trim(),
+      kpi: z.string().min(1, 'KPI is required').trim(),
+      targetValue: z.number().min(0, 'Target value must be positive'),
+      currentValue: z.number().min(0, 'Current value must be positive').optional(),
+    })).min(1, 'At least one objective is required'),
+    teamMembers: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID')).optional(),
   }),
 };
 
