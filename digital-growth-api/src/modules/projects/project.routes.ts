@@ -12,7 +12,8 @@ import {
   createObjectiveSchema,
   updateObjectiveSchema,
   createTaskSchema,
-  updateTaskSchema
+  updateTaskSchema,
+  listProjectsSchema
 } from './project.schemas';
 import { ROLES } from '../../common/constants';
 
@@ -21,7 +22,7 @@ const router = Router();
 router.use(authenticate);
 
 // Main project routes
-/*router.get('/', validate(listProjectsSchema), ProjectController.listProjects);*/
+router.get('/', validate(listProjectsSchema), ProjectController.listProjects);
 
 router.post('/', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createProjectSchema), ProjectController.createProject);
 

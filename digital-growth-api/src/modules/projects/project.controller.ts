@@ -71,12 +71,11 @@ export class ProjectController {
 
   static async listProjects(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { projects, meta } = await ProjectService.listProjects(req.query, req.query, req.user!);
+      const projects = await ProjectService.listProjects(req.query, req.user!);
       
       const response: ApiResponse = {
         success: true,
         data: projects,
-        meta,
         traceId: req.traceId!,
       };
       

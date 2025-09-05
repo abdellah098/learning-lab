@@ -4,7 +4,7 @@ import { User } from '../users/user.model';
 import { Client } from '../clients/client.model';
 import { ApiError } from '../../common/errors';
 import { buildSortQuery, buildFilterQuery } from '../../common/utils';
-import { DEFAULT_PAGINATION, ROLES, TASK_STATUS } from '../../common/constants';
+import {ROLES, TASK_STATUS } from '../../common/constants';
 import { AuthUser } from '../../types';
 
 export class ProjectService {
@@ -20,7 +20,7 @@ export class ProjectService {
         _id: { $in: projectData.teamMembers },
         isActive: true
       });
-      
+
       if (users.length !== projectData.teamMembers.length) {
         throw ApiError.badRequest('One or more team members not found or inactive');
       }
@@ -28,7 +28,7 @@ export class ProjectService {
 
     const project = new Project(projectData);
     await project.save();
-    
+
     return await this.getProjectById(project._id.toString());
   }
 
@@ -37,7 +37,7 @@ export class ProjectService {
       .populate('clientId', 'name contactPerson contactEmail')
       .populate('teamMembers', 'firstName lastName email role')
       .populate('tasks.assigneeId', 'firstName lastName email');
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -52,7 +52,7 @@ export class ProjectService {
 
   static async updateProject(id: string, updateData: Partial<IProject>, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(id);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -71,13 +71,13 @@ export class ProjectService {
 
     Object.assign(project, updateData);
     await project.save();
-    
+
     return await this.getProjectById(id);
   }
 
   static async deleteProject(id: string, user: AuthUser): Promise<void> {
     const project = await Project.findById(id);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -89,56 +89,57 @@ export class ProjectService {
     await Project.findByIdAndDelete(id);
   }
 
-  static async listProjects(filters: any = {}, pagination: any = {}, user: AuthUser): Promise<{
-    projects: IProject[];
-    meta: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
-  }> {
-    const page = Math.max(1, pagination.page || DEFAULT_PAGINATION.PAGE);
-    const limit = Math.min(
-      pagination.limit || DEFAULT_PAGINATION.LIMIT,
-      DEFAULT_PAGINATION.MAX_LIMIT
-    );
-    const skip = (page - 1) * limit;
+  static async listProjects(filters: any = {}, user: AuthUser): Promise<any[]> {
 
+    // Build the base query
     let query = buildFilterQuery(filters);
 
-    // Apply user-specific filters
+    // Restrict results for project members
     if (user.role === ROLES.PROJECT_MEMBER) {
-      query.teamMembers = user._id;
+      query.teamMembers = { $in: [user._id] };
     }
-    // Admins and project managers can see all projects
 
-    const sort = buildSortQuery(pagination.sort);
+    // Build sort query with default fallback
+    const sort = buildSortQuery(filters.sortBy);
 
+    // Execute query and count in parallel
     const [projects, total] = await Promise.all([
       Project.find(query)
         .populate('clientId', 'name contactPerson')
         .populate('teamMembers', 'firstName lastName email')
-        .sort(sort)
-        .skip(skip)
-        .limit(limit),
+        .sort(sort),
       Project.countDocuments(query),
     ]);
 
-    return {
-      projects,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    // Map IProject to ShortProject
+    const mappedProjects = projects.map((project) => ({
+      _id: project._id.toString(),
+      name: project.name,
+      clientName: (project.clientId as any)?.name ?? 'Unknown',
+      description: project.description ?? '',
+      status: project.status,
+      createdAt: project.createdAt?.toISOString() ?? '',
+      endDate: project.endDate?.toISOString() ?? '',
+      teamSize: project.teamMembers.length,
+      progress: ProjectService.calculateProjectProgress(project),
+      channel: project.channel,
+    }));
+
+    return mappedProjects;
   }
+
+  static calculateProjectProgress = (project: IProject): number => {
+    const totalTasks = project.tasks.length;
+    if (totalTasks === 0) return 0;
+
+    const completedTasks = project.tasks.filter(task => task.status === TASK_STATUS.COMPLETED).length;
+    return Math.round((completedTasks / totalTasks) * 100);
+  };
+  
 
   static async addTeamMember(projectId: string, userId: string, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -160,13 +161,13 @@ export class ProjectService {
 
     project.teamMembers.push(new mongoose.Types.ObjectId(userId));
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
   static async removeTeamMember(projectId: string, userId: string, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -179,13 +180,13 @@ export class ProjectService {
       memberId => memberId.toString() !== userId
     );
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
   static async createObjective(projectId: string, objectiveData: any, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -196,18 +197,18 @@ export class ProjectService {
 
     project.objectives.push(objectiveData);
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
   static async updateObjective(
-    projectId: string, 
-    objectiveId: string, 
-    updateData: any, 
+    projectId: string,
+    objectiveId: string,
+    updateData: any,
     user: AuthUser
   ): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -223,13 +224,13 @@ export class ProjectService {
 
     Object.assign(objective, updateData);
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
   static async deleteObjective(projectId: string, objectiveId: string, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -245,13 +246,13 @@ export class ProjectService {
 
     project.objectives.pull(objectiveId);
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
   static async createTask(projectId: string, taskData: any, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -275,18 +276,18 @@ export class ProjectService {
 
     project.tasks.push(taskData);
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
   static async updateTask(
-    projectId: string, 
-    taskId: string, 
-    updateData: any, 
+    projectId: string,
+    taskId: string,
+    updateData: any,
     user: AuthUser
   ): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -297,9 +298,9 @@ export class ProjectService {
     }
 
     // Check permissions
-    const canModify = this.canModifyProject(project, user) || 
-                     (user.role === ROLES.PROJECT_MEMBER && 
-                      task.assigneeId?.toString() === user._id);
+    const canModify = this.canModifyProject(project, user) ||
+      (user.role === ROLES.PROJECT_MEMBER &&
+        task.assigneeId?.toString() === user._id);
 
     if (!canModify) {
       throw ApiError.forbidden('Cannot modify this task');
@@ -325,13 +326,13 @@ export class ProjectService {
 
     Object.assign(task, updateData);
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
   static async deleteTask(projectId: string, taskId: string, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(projectId);
-    
+
     if (!project) {
       throw ApiError.notFound('Project not found');
     }
@@ -347,7 +348,7 @@ export class ProjectService {
 
     project.tasks.pull(taskId);
     await project.save();
-    
+
     return await this.getProjectById(projectId);
   }
 
@@ -355,11 +356,11 @@ export class ProjectService {
     if (user.role === ROLES.ADMIN || user.role === ROLES.PROJECT_MANAGER) {
       return true;
     }
-    
+
     if (user.role === ROLES.PROJECT_MEMBER) {
       return project.teamMembers.some(memberId => memberId.toString() === user._id);
     }
-    
+
     return false;
   }
 

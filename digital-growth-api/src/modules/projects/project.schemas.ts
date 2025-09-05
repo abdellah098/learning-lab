@@ -1,6 +1,14 @@
 import { z } from 'zod';
 import { PROJECT_STATUS, TASK_STATUS } from '../../common/constants';
 
+export const listProjectsSchema = {
+  query: z.object({
+    search: z.string().trim().optional(),
+    sortBy: z.enum(['name', 'status', 'createdAt', 'endDate']).optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
+  }),
+};
+
 export const createProjectSchema = {
   body: z.object({
     name: z.string().min(1, 'Project name is required').trim(),
