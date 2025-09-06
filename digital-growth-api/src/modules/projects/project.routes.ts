@@ -7,8 +7,7 @@ import {
   updateProjectSchema, 
   getProjectSchema, 
   //listProjectsSchema,
-  addTeamMemberSchema,
-  removeTeamMemberSchema,
+  updateTeamMemberSchema,
   createObjectiveSchema,
   updateObjectiveSchema,
   createTaskSchema,
@@ -34,9 +33,7 @@ ProjectController.updateProject);
 /*router.delete('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteProject);*/
 
 // Team management routes
-router.post('/:id/team', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(addTeamMemberSchema), ProjectController.addTeamMember);
-
-router.delete('/:id/team/:userId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(removeTeamMemberSchema), ProjectController.removeTeamMember);
+router.patch('/:id/members', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateTeamMemberSchema), ProjectController.updateTeamMember);
 
 // Objectives routes
 router.post('/:id/objectives', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createObjectiveSchema), ProjectController.createObjective);

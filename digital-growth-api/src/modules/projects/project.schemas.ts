@@ -26,9 +26,11 @@ export const createProjectSchema = {
   }),
 };
 
-export const addTeamMemberSchema = {
+export const updateTeamMemberSchema = {
   body: z.object({
-    userId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID'),
+    userIds: z.array(
+      z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID')
+    ).nonempty('At least one user ID is required'),
   }),
   params: z.object({
     id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid project ID'),

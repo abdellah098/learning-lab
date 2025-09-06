@@ -4,7 +4,7 @@ import { User } from '../users/user.model';
 import { Client } from '../clients/client.model';
 import { ApiError } from '../../common/errors';
 import { buildSortQuery, buildFilterQuery } from '../../common/utils';
-import {ROLES, TASK_STATUS } from '../../common/constants';
+import { ROLES, TASK_STATUS } from '../../common/constants';
 import { AuthUser } from '../../types';
 
 export class ProjectService {
@@ -127,8 +127,12 @@ export class ProjectService {
     const completedTasks = project.tasks.filter(task => task.status === TASK_STATUS.COMPLETED).length;
     return Math.round((completedTasks / totalTasks) * 100);
   };
-  
-  static async addTeamMember(projectId: string, userId: string, user: AuthUser): Promise<IProject> {
+
+  static async updateTeamMember(
+    projectId: string,
+    userIds: string[],
+    user: AuthUser
+  ): Promise<void> {
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -139,40 +143,19 @@ export class ProjectService {
       throw ApiError.forbidden('Cannot modify project team');
     }
 
-    // Verify user exists and is active
-    const userToAdd = await User.findOne({ _id: userId, isActive: true });
-    if (!userToAdd) {
-      throw ApiError.badRequest('User not found or inactive');
+    const usersToAssign = await User.find({
+      _id: { $in: userIds },
+      isActive: true
+    });
+
+    if (usersToAssign.length !== userIds.length) {
+      throw ApiError.badRequest('Some users not found or inactive');
     }
 
-    // Check if user is already a team member
-    if (project.teamMembers.includes(new mongoose.Types.ObjectId(userId))) {
-      throw ApiError.conflict('User is already a team member');
-    }
+    project.teamMembers = userIds.map(id => new mongoose.Types.ObjectId(id));
 
-    project.teamMembers.push(new mongoose.Types.ObjectId(userId));
     await project.save();
 
-    return await this.getProjectById(projectId);
-  }
-
-  static async removeTeamMember(projectId: string, userId: string, user: AuthUser): Promise<IProject> {
-    const project = await Project.findById(projectId);
-
-    if (!project) {
-      throw ApiError.notFound('Project not found');
-    }
-
-    if (!this.canModifyProject(project, user)) {
-      throw ApiError.forbidden('Cannot modify project team');
-    }
-
-    project.teamMembers = project.teamMembers.filter(
-      memberId => memberId.toString() !== userId
-    );
-    await project.save();
-
-    return await this.getProjectById(projectId);
   }
 
   static async createObjective(projectId: string, objectiveData: any, user: AuthUser): Promise<IProject> {
