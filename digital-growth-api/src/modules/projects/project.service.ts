@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Project, IProject } from './project.model';
+import { Project, IProject, IObjective } from './project.model';
 import { User } from '../users/user.model';
 import { Client } from '../clients/client.model';
 import { ApiError } from '../../common/errors';
@@ -158,7 +158,7 @@ export class ProjectService {
 
   }
 
-  static async createObjective(projectId: string, objectiveData: any, user: AuthUser): Promise<IProject> {
+  static async createObjective(projectId: string, objectiveData: any, user: AuthUser): Promise<IObjective> {
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -172,7 +172,8 @@ export class ProjectService {
     project.objectives.push(objectiveData);
     await project.save();
 
-    return await this.getProjectById(projectId);
+    // Return the newly created objective
+    return project.objectives[project.objectives.length - 1];
   }
 
   static async updateObjective(

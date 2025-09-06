@@ -104,11 +104,11 @@ export class ProjectController {
 
   static async createObjective(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.createObjective(req.params.id, req.body, req.user!);
+      const objective = await ProjectService.createObjective(req.params.id, req.body, req.user!);
 
       const response: ApiResponse = {
         success: true,
-        data: project,
+        data: objective,
         message: 'Objective created successfully',
         traceId: req.traceId!,
       };
