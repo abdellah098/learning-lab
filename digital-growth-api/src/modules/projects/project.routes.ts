@@ -5,7 +5,7 @@ import { validate } from '../../middlewares/validation.middleware';
 import { 
   createProjectSchema, 
   //updateProjectSchema, 
-  //getProjectSchema, 
+  getProjectSchema, 
   //listProjectsSchema,
   addTeamMemberSchema,
   removeTeamMemberSchema,
@@ -26,9 +26,9 @@ router.get('/', validate(listProjectsSchema), ProjectController.listProjects);
 
 router.post('/', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createProjectSchema), ProjectController.createProject);
 
-/*router.get('/:id', validate(getProjectSchema), ProjectController.getProject);
+router.get('/:id', validate(getProjectSchema), ProjectController.getProject);
 
-router.patch('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateProjectSchema), 
+/*router.patch('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateProjectSchema), 
 ProjectController.updateProject);
 
 router.delete('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteProject);*/

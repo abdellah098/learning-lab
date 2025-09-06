@@ -136,7 +136,6 @@ export class ProjectService {
     return Math.round((completedTasks / totalTasks) * 100);
   };
   
-
   static async addTeamMember(projectId: string, userId: string, user: AuthUser): Promise<IProject> {
     const project = await Project.findById(projectId);
 

@@ -35,7 +35,7 @@ export const getUserSchema = {
 export const listUsersSchema = {
   query: z.object({
     page: z.string().transform(Number).default('1'),
-    limit: z.string().transform(Number).default('20'),
+    limit: z.string().transform(Number).default('50'),
     sort: z.string().optional(),
     role: z.enum([ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.PROJECT_MEMBER]).optional(),
     isActive: z.string().transform(val => val === 'true').optional(),
