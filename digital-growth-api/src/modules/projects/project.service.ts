@@ -222,7 +222,7 @@ export class ProjectService {
 
   }
 
-  static async createTask(projectId: string, taskData: any, user: AuthUser): Promise<IProject> {
+  static async createTask(projectId: string, taskData: any, user: AuthUser): Promise<any> {
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -249,7 +249,7 @@ export class ProjectService {
     project.tasks.push(taskData);
     await project.save();
 
-    return await this.getProjectById(projectId);
+    return project.tasks[project.tasks.length - 1];
   }
 
   static async updateTask(
