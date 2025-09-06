@@ -121,7 +121,7 @@ export class ProjectController {
 
   static async updateObjective(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.updateObjective(
+       await ProjectService.updateObjective(
         req.params.id,
         req.params.objectiveId,
         req.body,
@@ -130,7 +130,6 @@ export class ProjectController {
 
       const response: ApiResponse = {
         success: true,
-        data: project,
         message: 'Objective updated successfully',
         traceId: req.traceId!,
       };

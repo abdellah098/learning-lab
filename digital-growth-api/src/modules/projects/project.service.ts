@@ -181,7 +181,7 @@ export class ProjectService {
     objectiveId: string,
     updateData: any,
     user: AuthUser
-  ): Promise<IProject> {
+  ): Promise<void> {
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -199,8 +199,6 @@ export class ProjectService {
 
     Object.assign(objective, updateData);
     await project.save();
-
-    return await this.getProjectById(projectId);
   }
 
   static async deleteObjective(projectId: string, objectiveId: string, user: AuthUser): Promise<IProject> {
