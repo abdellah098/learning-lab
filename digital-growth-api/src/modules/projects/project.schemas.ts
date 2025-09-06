@@ -99,3 +99,12 @@ export const getProjectSchema = {
     id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid project ID'),
   }),
 };
+
+export const updateProjectSchema = {
+  body: z.object({
+    description: z.string().trim().optional(),
+    channel: z.string().min(1, 'Channel is required').trim(),
+    status: z.enum(Object.values(PROJECT_STATUS) as [string, ...string[]]).optional(),
+    endDate: z.string().datetime().optional()
+  }),
+};

@@ -4,7 +4,7 @@ import { authenticate, authorize } from '../../middlewares/auth.middleware';
 import { validate } from '../../middlewares/validation.middleware';
 import { 
   createProjectSchema, 
-  //updateProjectSchema, 
+  updateProjectSchema, 
   getProjectSchema, 
   //listProjectsSchema,
   addTeamMemberSchema,
@@ -28,10 +28,10 @@ router.post('/', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createP
 
 router.get('/:id', validate(getProjectSchema), ProjectController.getProject);
 
-/*router.patch('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateProjectSchema), 
+router.patch('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateProjectSchema), 
 ProjectController.updateProject);
 
-router.delete('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteProject);*/
+/*router.delete('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteProject);*/
 
 // Team management routes
 router.post('/:id/team', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(addTeamMemberSchema), ProjectController.addTeamMember);

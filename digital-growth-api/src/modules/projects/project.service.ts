@@ -50,7 +50,7 @@ export class ProjectService {
     return project;
   }
 
-  static async updateProject(id: string, updateData: Partial<IProject>, user: AuthUser): Promise<IProject> {
+  static async updateProject(id: string, updateData: Partial<IProject>, user: AuthUser): Promise<void> {
     const project = await Project.findById(id);
 
     if (!project) {
@@ -61,18 +61,10 @@ export class ProjectService {
       throw ApiError.forbidden('Cannot modify this project');
     }
 
-    // Verify client if being updated
-    if (updateData.clientId) {
-      const client = await Client.findOne({ _id: updateData.clientId, isActive: true });
-      if (!client) {
-        throw ApiError.badRequest('Client not found or inactive');
-      }
-    }
-
     Object.assign(project, updateData);
     await project.save();
 
-    return await this.getProjectById(id);
+    await this.getProjectById(id);
   }
 
   static async deleteProject(id: string, user: AuthUser): Promise<void> {

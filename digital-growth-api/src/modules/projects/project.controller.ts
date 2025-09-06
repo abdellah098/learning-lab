@@ -38,11 +38,12 @@ export class ProjectController {
 
   static async updateProject(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.updateProject(req.params.id, req.body, req.user!);
+      console.log('Updating project with ID: *****************', req.body);
+
+      await ProjectService.updateProject(req.params.id, req.body, req.user!);
       
       const response: ApiResponse = {
         success: true,
-        data: project,
         message: 'Project updated successfully',
         traceId: req.traceId!,
       };
