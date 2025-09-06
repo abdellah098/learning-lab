@@ -201,7 +201,7 @@ export class ProjectService {
     await project.save();
   }
 
-  static async deleteObjective(projectId: string, objectiveId: string, user: AuthUser): Promise<IProject> {
+  static async deleteObjective(projectId: string, objectiveId: string, user: AuthUser): Promise<void> {
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -220,7 +220,6 @@ export class ProjectService {
     project.objectives.pull(objectiveId);
     await project.save();
 
-    return await this.getProjectById(projectId);
   }
 
   static async createTask(projectId: string, taskData: any, user: AuthUser): Promise<IProject> {

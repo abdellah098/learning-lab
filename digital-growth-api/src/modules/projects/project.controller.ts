@@ -142,11 +142,10 @@ export class ProjectController {
 
   static async deleteObjective(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.deleteObjective(req.params.id, req.params.objectiveId, req.user!);
+      await ProjectService.deleteObjective(req.params.id, req.params.objectiveId, req.user!);
 
       const response: ApiResponse = {
         success: true,
-        data: project,
         message: 'Objective deleted successfully',
         traceId: req.traceId!,
       };

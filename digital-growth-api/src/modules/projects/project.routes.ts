@@ -40,7 +40,7 @@ router.post('/:id/objectives', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), va
 
 router.patch('/:id/objectives/:objectiveId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateObjectiveSchema), ProjectController.updateObjective);
 
-/*router.delete('/:id/objectives/:objectiveId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteObjective);*/
+router.delete('/:id/objectives/:objectiveId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteObjective);
 
 // Tasks routes
 router.post('/:id/tasks', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createTaskSchema), ProjectController.createTask);
