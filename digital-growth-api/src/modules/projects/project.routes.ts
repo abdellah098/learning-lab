@@ -6,7 +6,6 @@ import {
   createProjectSchema, 
   updateProjectSchema, 
   getProjectSchema, 
-  //listProjectsSchema,
   updateTeamMemberSchema,
   createObjectiveSchema,
   updateObjectiveSchema,
@@ -43,10 +42,10 @@ router.patch('/:id/objectives/:objectiveId', authorize(ROLES.ADMIN, ROLES.PROJEC
 router.delete('/:id/objectives/:objectiveId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteObjective);
 
 // Tasks routes
-router.post('/:id/tasks', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createTaskSchema), ProjectController.createTask);
+router.post('/:id/tasks', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.PROJECT_MEMBER), validate(createTaskSchema), ProjectController.createTask);
 
-router.patch('/:id/tasks/:taskId', validate(updateTaskSchema), ProjectController.updateTask);
+router.patch('/:id/tasks/:taskId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.PROJECT_MEMBER), validate(updateTaskSchema), ProjectController.updateTask);
 
-/*router.delete('/:id/tasks/:taskId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteTask);*/
+router.delete('/:id/tasks/:taskId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.PROJECT_MEMBER), validate(getProjectSchema), ProjectController.deleteTask);
 
 export { router as projectRoutes };

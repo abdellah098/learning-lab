@@ -196,11 +196,10 @@ export class ProjectController {
 
   static async deleteTask(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.deleteTask(req.params.id, req.params.taskId, req.user!);
+      await ProjectService.deleteTask(req.params.id, req.params.taskId, req.user!);
 
       const response: ApiResponse = {
         success: true,
-        data: project,
         message: 'Task deleted successfully',
         traceId: req.traceId!,
       };

@@ -310,7 +310,7 @@ export class ProjectService {
     return await this.getProjectById(projectId);
   }
 
-  static async deleteTask(projectId: string, taskId: string, user: AuthUser): Promise<IProject> {
+  static async deleteTask(projectId: string, taskId: string, user: AuthUser): Promise<void> {
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -329,7 +329,6 @@ export class ProjectService {
     project.tasks.pull(taskId);
     await project.save();
 
-    return await this.getProjectById(projectId);
   }
 
   private static canAccessProject(project: IProject, user: AuthUser): boolean {
