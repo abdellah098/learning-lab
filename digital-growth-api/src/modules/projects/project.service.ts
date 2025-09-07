@@ -46,6 +46,14 @@ export class ProjectService {
     if (user && !this.canAccessProject(project, user)) {
       throw ApiError.forbidden('Access denied to this project');
     }
+   
+    project.tasks = project.tasks.map(task => {
+      return {
+
+        ...task.toObject(),
+        assigneeId: task.assigneeId ? task.assigneeId._id : undefined
+      };
+    });
 
     return project;
   }

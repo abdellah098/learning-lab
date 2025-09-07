@@ -121,7 +121,7 @@ export class ProjectController {
 
   static async updateObjective(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-       await ProjectService.updateObjective(
+      await ProjectService.updateObjective(
         req.params.id,
         req.params.objectiveId,
         req.body,
@@ -158,11 +158,10 @@ export class ProjectController {
 
   static async createTask(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.createTask(req.params.id, req.body, req.user!);
-
+      const task = await ProjectService.createTask(req.params.id, req.body, req.user!);
       const response: ApiResponse = {
         success: true,
-        data: project,
+        data: task,
         message: 'Task created successfully',
         traceId: req.traceId!,
       };
