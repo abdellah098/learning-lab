@@ -25,3 +25,12 @@ export const refreshTokenSchema = {
     refreshToken: z.string().min(1, 'Refresh token is required'),
   }),
 };
+
+export const resetPasswordSchema = {
+  body: z.object({
+    userId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID'),
+    newPassword: z.string()
+      .min(8, 'New password must be at least 8 characters')
+      .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'New password must contain at least 1 letter and 1 digit')
+  }),
+};

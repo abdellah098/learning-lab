@@ -98,4 +98,21 @@ export class AuthController {
       next(error);
     }
   }
+
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId, newPassword } = req.body;
+      await AuthService.resetPassword(userId, newPassword);
+
+      const response: ApiResponse = {
+        success: true,
+        message: 'Password reset successfully',
+        traceId: (req as any).traceId,
+      };
+      
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

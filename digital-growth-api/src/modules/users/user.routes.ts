@@ -9,7 +9,7 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get('/', authorize(ROLES.ADMIN), validate(listUsersSchema), UserController.listUsers);
+router.get('/', validate(listUsersSchema), UserController.listUsers);
 
 router.post('/', authorize(ROLES.ADMIN), validate(createUserSchema), UserController.createUser);
 
