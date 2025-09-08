@@ -337,7 +337,7 @@ export class ProjectService {
     }
 
     if (user.role === ROLES.PROJECT_MEMBER) {
-      return project.teamMembers.some(memberId => memberId.toString() === user._id);
+      return project.teamMembers.map(member => member._id.toString() === user._id.toString()).includes(true);
     }
 
     return false;

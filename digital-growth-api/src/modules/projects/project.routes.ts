@@ -35,17 +35,17 @@ ProjectController.updateProject);
 router.patch('/:id/members', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateTeamMemberSchema), ProjectController.updateTeamMember);
 
 // Objectives routes
-router.post('/:id/objectives', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createObjectiveSchema), ProjectController.createObjective);
+router.post('/:id/objectives', validate(createObjectiveSchema), ProjectController.createObjective);
 
-router.patch('/:id/objectives/:objectiveId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateObjectiveSchema), ProjectController.updateObjective);
+router.patch('/:id/objectives/:objectiveId', validate(updateObjectiveSchema), ProjectController.updateObjective);
 
-router.delete('/:id/objectives/:objectiveId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(getProjectSchema), ProjectController.deleteObjective);
+router.delete('/:id/objectives/:objectiveId', validate(getProjectSchema), ProjectController.deleteObjective);
 
 // Tasks routes
-router.post('/:id/tasks', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.PROJECT_MEMBER), validate(createTaskSchema), ProjectController.createTask);
+router.post('/:id/tasks', validate(createTaskSchema), ProjectController.createTask);
 
-router.patch('/:id/tasks/:taskId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.PROJECT_MEMBER), validate(updateTaskSchema), ProjectController.updateTask);
+router.patch('/:id/tasks/:taskId', validate(updateTaskSchema), ProjectController.updateTask);
 
-router.delete('/:id/tasks/:taskId', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.PROJECT_MEMBER), validate(getProjectSchema), ProjectController.deleteTask);
+router.delete('/:id/tasks/:taskId', validate(getProjectSchema), ProjectController.deleteTask);
 
 export { router as projectRoutes };

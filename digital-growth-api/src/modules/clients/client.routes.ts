@@ -8,12 +8,11 @@ import { ROLES } from '../../common/constants';
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER));
 
 router.get('/', validate(listClientsSchema), ClientController.listClients);
-router.post('/', authorize(ROLES.ADMIN), validate(createClientSchema), ClientController.createClient);
+router.post('/', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(createClientSchema), ClientController.createClient);
 router.get('/:id', validate(getClientSchema), ClientController.getClient);
-router.patch('/:id',authorize(ROLES.ADMIN), validate(updateClientSchema), ClientController.updateClient);
+router.patch('/:id', authorize(ROLES.ADMIN, ROLES.PROJECT_MANAGER), validate(updateClientSchema), ClientController.updateClient);
 router.delete('/:id', authorize(ROLES.ADMIN), validate(getClientSchema), ClientController.deleteClient);
 
 export { router as clientRoutes };
