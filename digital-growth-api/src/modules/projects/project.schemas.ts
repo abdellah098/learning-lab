@@ -23,6 +23,7 @@ export const createProjectSchema = {
       currentValue: z.number().min(0, 'Current value must be positive').optional(),
     })).min(1, 'At least one objective is required'),
     teamMembers: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID')).optional(),
+    endDate: z.string().datetime()
   }),
 };
 
