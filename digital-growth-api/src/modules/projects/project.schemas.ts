@@ -13,8 +13,7 @@ export const createProjectSchema = {
   body: z.object({
     name: z.string().min(1, 'Project name is required').trim(),
     description: z.string().trim().optional(),
-     channels: z.array(z.string().min(1, 'Channel value cannot be empty'))
-              .min(1, 'At least one channel is required'),
+    channels: z.array(z.string().min(1, 'Channel value cannot be empty')).min(1, 'At least one channel is required'),
     status: z.enum(Object.values(PROJECT_STATUS) as [string, ...string[]]).optional(),
     clientId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid client ID').optional(),
     objectives: z.array(z.object({
@@ -111,7 +110,7 @@ export const getProjectSchema = {
 export const updateProjectSchema = {
   body: z.object({
     description: z.string().trim().optional(),
-    channel: z.string().min(1, 'Channel is required').trim(),
+    channels: z.array(z.string().min(1, 'Channel value cannot be empty')).min(1, 'At least one channel is required'),
     status: z.enum(Object.values(PROJECT_STATUS) as [string, ...string[]]).optional(),
     endDate: z.string().datetime().optional()
   }),
