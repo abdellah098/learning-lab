@@ -24,6 +24,7 @@ export interface IProject {
   name: string;
   description?: string;
   channel: string;
+  channels: string[];
   status: string;
   clientId: Types.ObjectId;
   teamMembers: Types.ObjectId[];
@@ -98,9 +99,14 @@ const projectSchema = new Schema<IProject>({
   },
   channel: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
   },
+  channels: [{
+    type: String,
+    required: true,
+    trim: true,
+  }],
   status: {
     type: String,
     enum: Object.values(PROJECT_STATUS),

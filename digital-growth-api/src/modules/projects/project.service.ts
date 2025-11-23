@@ -122,7 +122,7 @@ export class ProjectService {
       endDate: project.endDate?.toISOString() ?? '',
       teamSize: project.teamMembers.length,
       progress: ProjectService.calculateProjectProgress(project),
-      channel: project.channel,
+      channels: project.channels,
     }));
 
     return mappedProjects;
