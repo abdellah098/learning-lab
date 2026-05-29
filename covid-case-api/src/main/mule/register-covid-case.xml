@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8a42f0c8-6f62-46b2-ad65-1b9d05f7a9ba" basePath="/covid" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="register-covid-caseFlow" doc:id="2b08e174-a8fb-4b0a-952d-ba71c0003ccc" >
+		<http:listener doc:name="HTTP: POST /v1/cases" doc:id="f9c6c25d-51c6-4699-b5f8-166b45508464" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Log payload" doc:id="706ca3a3-3edc-44bc-8614-5600e1a463d0" message="#[payload]"/>
+	</flow>
+</mule>

@@ -7,3 +7,21 @@
 
 digital-growth-api/dist
 digital-growth-api/node_modules
+/target/
+
+# Eclipse / Anypoint Studio
+.classpath
+.project
+.settings/
+
+# Maven build output
+target/
+
+# Anypoint Studio metadata
+.metadata/
+
+# Logs
+*.log
+
+# Java compiled files
+*.class
