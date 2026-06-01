@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a2b41290-c56e-4c63-93d3-5c1f2129900b" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="PostgresDatabaseConfig" doc:name="Database Config" doc:id="580c001a-a179-4279-a141-fa2acdc9889e" >
+		<db:generic-connection url="jdbc:postgresql://localhost:5433/mule_db" driverClassName="org.postgresql.Driver" user="postgres" password="postgres" />
+	</db:config>
+	<flow name="create_employee_apiFlow" doc:id="edff2e7b-12fd-4d7f-bab5-f71136d8d20f" >
+		<http:listener doc:name="Create employee" doc:id="08d370c5-777a-45b7-aabb-a1d6480c450e" allowedMethods="POST" config-ref="HTTP_Listener_config" path="/v1/employees"/>
+		<logger level="INFO" doc:name="Start Log" doc:id="baf32020-c7fb-4160-a729-b4cd943e637e" message="#[payload]"/>
+		<db:insert doc:name="Insert new employee" doc:id="6116d6ab-86f1-4078-bf13-f32873341298" config-ref="PostgresDatabaseConfig">
+			<db:sql ><![CDATA[INSERT INTO employee(id, name, status) VALUES (:id, :name, :status)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: payload.employeeId,
+	name: payload.employeeName,
+	status: payload.employeeStatus
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Set Payload" doc:id="3049a045-d3d6-4b4b-8559-bbb9dd1b4427" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	status: 200,
+	message: "success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Log" doc:id="ffe0a64e-9627-41d3-adac-ab505a7a3b66" message='#[payload]'/>
+	</flow>
+</mule>
