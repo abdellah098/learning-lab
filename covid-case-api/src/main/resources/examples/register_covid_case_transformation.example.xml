@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<COVID_CASE>
+    <FIRST_NAME>John</FIRST_NAME>
+    <LAST_NAME>Doe</LAST_NAME>
+    <PHONE>123-456-7890</PHONE>
+    <EMAIL>john@gmail.com</EMAIL>
+    <DATE_OF_BIRTH>1980-04-26</DATE_OF_BIRTH>
+    <COUNTRY>usa</COUNTRY>
+</COVID_CASE>
