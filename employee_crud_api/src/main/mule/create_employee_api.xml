@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</db:config>
 	<flow name="create_employee_apiFlow" doc:id="edff2e7b-12fd-4d7f-bab5-f71136d8d20f" >
 		<http:listener doc:name="Create employee" doc:id="08d370c5-777a-45b7-aabb-a1d6480c450e" allowedMethods="POST" config-ref="HTTP_Listener_config" path="/v1/employees"/>
-		<logger level="INFO" doc:name="Start Log" doc:id="baf32020-c7fb-4160-a729-b4cd943e637e" message="#[payload]"/>
+		<logger level="INFO" doc:name="Start Log" doc:id="baf32020-c7fb-4160-a729-b4cd943e637e" message="Start creating new employee"/>
 		<db:insert doc:name="Insert new employee" doc:id="6116d6ab-86f1-4078-bf13-f32873341298" config-ref="PostgresDatabaseConfig">
 			<db:sql ><![CDATA[INSERT INTO employee(id, name, status) VALUES (:id, :name, :status)]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
@@ -34,6 +34,6 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="End Log" doc:id="ffe0a64e-9627-41d3-adac-ab505a7a3b66" message='#[payload]'/>
+		<logger level="INFO" doc:name="End Log" doc:id="ffe0a64e-9627-41d3-adac-ab505a7a3b66" message='Employee creation end'/>
 	</flow>
 </mule>
