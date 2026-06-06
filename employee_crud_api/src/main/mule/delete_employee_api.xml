@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="delete_employee_apiFlow" doc:id="5fbcc02c-828a-40b0-8564-fd0bd27ab9bd" >
+		<http:listener doc:name="Delete employee" doc:id="8765e4db-6c7a-4768-9070-a11d52d45507" config-ref="HTTP_Listener_config" path="/v1/employees/{employeeId}"/>
+		<logger level="INFO" doc:name="Start Log" doc:id="e85b90bc-dbec-46d9-85a3-70d6a11cec3f" message="Start deleting employee process"/>
+		<db:delete doc:name="Delete employee" doc:id="8c12a0a8-a711-4054-87b0-ab61d1bfd2a6" config-ref="PostgresDatabaseConfig">
+			<db:sql ><![CDATA[DELETE
+FROM employee
+WHERE id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: attributes.uriParams.employeeId
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Transform Message" doc:id="15df713a-49ef-46cb-a016-f4039187e063" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	status: 200,
+	message: "Employee deleted"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="c33b5a5c-8ad7-4118-a508-f72f8f0da00f" message="Delete employee ended"/>
+	</flow>
+</mule>
