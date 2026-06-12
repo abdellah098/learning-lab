@@ -29,18 +29,4 @@ type register_covid_case_input = {|
       <types:example format="xml" element="COVID_CASE" location="examples/register_covid_case_transformation.example.xml"/>
     </types:type>
   </types:catalog>
-  <types:enrichment select="#485781e2-ec75-4cdf-b5c1-506f76bf0d81">
-    <types:processor-declaration>
-      <types:input-event>
-        <types:message>
-          <types:payload type="register_covid_case_input"/>
-        </types:message>
-      </types:input-event>
-      <types:output-event>
-        <types:message>
-          <types:payload type="register_covid_case_transformation_schema"/>
-        </types:message>
-      </types:output-event>
-    </types:processor-declaration>
-  </types:enrichment>
 </types:mule>
