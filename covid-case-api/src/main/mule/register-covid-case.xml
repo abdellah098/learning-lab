@@ -52,16 +52,13 @@ var currentUser: String = "Agent-82"
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<db:insert doc:name="Insert new covid case" doc:id="8d55ef63-124e-4815-a16f-a5d415168faa" config-ref="PostgresDatabase">
+		<db:insert doc:name="Insert new covid case" doc:id="8d55ef63-124e-4815-a16f-a5d415168faa" config-ref="PostgresDatabase" autoGenerateKeys="true">
 			<db:sql ><![CDATA[INSERT INTO CVD_CASE_MASTER (SOURCE, CASE_TYPE, FIRST_NAME, LAST_NAME, PHONE, EMAIL, DATE_OF_BIRTH, NATIONAL_ID, NATIONAL_ID_TYPE, STREET_ADDRESS, CITY, STATE, POSTAL, COUNTRY, CREATE_DATE, UPDATE_DATE, CREATE_BY, UPDATE_BY) VALUES (:source, :caseType, :firstName, :lastName, :phone, :email, :dateOfBirth, :nationalId, :nationalIdType, :streetAddresses, :city, :state, :postal, :country, :createDate, :updateDate, :createBy, :updateBy)  ]]></db:sql>
 			<db:input-parameters ><![CDATA[#[vars.covideCasePayload]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names >
+				<db:auto-generated-keys-column-name value="case_id" />
+			</db:auto-generated-keys-column-names>
 		</db:insert>
-		<db:select doc:name="Select Id" doc:id="bf9889cc-1876-4a37-aac1-3881380084f6" config-ref="PostgresDatabase">
-			<db:sql ><![CDATA[SELECT MAX (case_id) as case_id FROM CVD_CASE_MASTER WHERE national_id = :nationalId]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{
-	nationalId: vars.covideCasePayload.nationalId
-}]]]></db:input-parameters>
-		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="33a6f7b6-75fe-4c3e-961b-11c981ea0768" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -77,5 +74,14 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="57447f60-e213-4d42-9416-548e32763455" message='#["Covid case registration end"]'/>
+	</flow>
+	<flow name="register-covid-caseFlow1" doc:id="8a98fa37-d21f-403a-b54c-427a98540955" >
+		<logger level="INFO" doc:name="Logger" doc:id="582a12b9-a228-4a10-bc8f-ab245386d3b6" />
+		<db:select doc:name="Select Id" doc:id="bf9889cc-1876-4a37-aac1-3881380084f6" config-ref="PostgresDatabase">
+			<db:sql><![CDATA[SELECT MAX (case_id) as case_id FROM CVD_CASE_MASTER WHERE national_id = :nationalId]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	nationalId: vars.covideCasePayload.nationalId
+}]]]></db:input-parameters>
+		</db:select>
 	</flow>
 </mule>
