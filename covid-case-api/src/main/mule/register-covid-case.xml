@@ -27,13 +27,13 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 			<ee:variables >
 				<ee:set-variable variableName="covideCasePayload" ><![CDATA[%dw 2.0
 output application/java
-var creationDate: String = now() as String {format :"yyy-MM-dd"}
+var creationDate: String = now() as String {format: "yyy-MM-dd"}
 var currentUser: String = "Agent-82"
 ---
 {
 	source: payload.source,
 	caseType: payload.caseType,
-	firstName: payload.firstName,
+	firstName: payload.firstName, 
 	lastName: payload.lastName,
 	phone: payload.phone,
 	email: payload.email,

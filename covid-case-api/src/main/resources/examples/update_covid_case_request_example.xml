@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<covidCase>
+  <caseID>7</caseID>
+  <source>Hospital1</source>
+  <caseType>positive</caseType>
+  <firstName>John</firstName>
+  <lastName>Nixon</lastName>
+  <phone>541-754-3010</phone>
+  <email>john@gmail.com</email>
+  <dateOfBirth>1989-04-26</dateOfBirth>
+  <nationalID>209-49-6193</nationalID>
+  <nationalIDType>SSN</nationalIDType>
+  <address>
+    <streetAddress>1600 Pennsylvania Avenue NW</streetAddress>
+    <city>Washington</city>
+    <state>DC</state>
+    <postal>20500</postal>
+    <country>USA</country>
+  </address>
+</covidCase>
