@@ -20,7 +20,21 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 				<http:body ><![CDATA[output text/plain --- error.description]]></http:body>
 			</http:error-response>
 		</http:listener>
-		<logger level="INFO" doc:name="Start Log" doc:id="5ba5052e-fed6-41ca-a62c-c8f33fdf8af2" message='#["Covid case registration flow started"]'/>
+		<ee:transform doc:name="Set TransformationId and CorrelationId" doc:id="2dfb9939-567b-4bfb-a876-1c0d86db37cc" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.'x-transaction-id' default uuid()]]></ee:set-variable>
+				<ee:set-variable variableName="correlationId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.'x-correlation-id' default payload.nationalID]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Start Log" doc:id="5ba5052e-fed6-41ca-a62c-c8f33fdf8af2" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Started covid case create flow", Payload: #[payload]'/>
 		<ee:transform doc:name="Prepare covid case payload" doc:id="41186cf2-342c-4bce-b3ce-268ae4449659" >
 			<ee:message >
 			</ee:message>
@@ -73,7 +87,7 @@ output application/json
 				<ee:set-variable variableName="code" ><![CDATA[201]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="57447f60-e213-4d42-9416-548e32763455" message='#["Covid case registration end"]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="57447f60-e213-4d42-9416-548e32763455" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed create covid case flow", Payload: #[payload]'/>
 	</flow>
 	<flow name="register-covid-caseFlow1" doc:id="8a98fa37-d21f-403a-b54c-427a98540955" >
 		<logger level="INFO" doc:name="Logger" doc:id="582a12b9-a228-4a10-bc8f-ab245386d3b6" />

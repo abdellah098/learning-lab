@@ -4,12 +4,54 @@
     <types:type name="update_covid_case_request" format="xml">
       <types:example format="xml" element="covidCase" location="examples/update_covid_case_request_example.xml"/>
     </types:type>
+    <types:type name="create_covid_case_request" format="json">
+      <types:shape format="weave" example="examples/register_covid_case_example.json"><![CDATA[%dw 2.0
+
+type create_covid_case_request = {|
+  source: String, 
+  caseType: String, 
+  firstname: String, 
+  lastName: String, 
+  phone: String, 
+  email: String, 
+  dateOfBirth: String, 
+  nationalID: String, 
+  nationalIDType: String, 
+  address: {|
+    streetAddress: String, 
+    city: String, 
+    state: String, 
+    postal: String, 
+    country: String
+  |}
+|} {"example": "{\\\"source\\\":\\\"Hospital1\\\",\\\"caseType\\\":\\\"positive\\\",\\\"firstname\\\":\\\"John\\\",\\\"lastName\\\":\\\"Nixon\\\",\\\"phone\\\":\\\"541-754-3010\\\",\\\"email\\\":\\\"john@gmail.com\\\",\\\"dateOfBirth\\\":\\\"1989-04-26\\\",\\\"nationalID\\\":\\\"209-49-6193\\\",\\\"nationalIDType\\\":\\\"SSN\\\",\\\"address\\\":{\\\"streetAddress\\\":\\\"1600 Pennsylvania Avenue NW\\\",\\\"city\\\":\\\"Washington\\\",\\\"state\\\":\\\"DC\\\",\\\"postal\\\":\\\"20500\\\",\\\"country\\\":\\\"USA\\\"}}"}
+
+]]></types:shape>
+    </types:type>
   </types:catalog>
   <types:enrichment select="#c396e911-5e47-4de5-96cc-f6d1262cebbd">
     <types:processor-declaration>
       <types:input-event>
         <types:message>
           <types:payload type="update_covid_case_request"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#2dfb9939-567b-4bfb-a876-1c0d86db37cc">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="create_covid_case_request"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#41186cf2-342c-4bce-b3ce-268ae4449659">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="create_covid_case_request"/>
         </types:message>
       </types:input-event>
     </types:processor-declaration>
