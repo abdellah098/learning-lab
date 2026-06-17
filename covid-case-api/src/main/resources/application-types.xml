@@ -65,4 +65,5 @@ type create_covid_case_request = {|
       </types:input-event>
     </types:processor-declaration>
   </types:enrichment>
+  <types:enrichment select="#f09ba636-c88a-40e0-87e9-76f52e781263"/>
 </types:mule>

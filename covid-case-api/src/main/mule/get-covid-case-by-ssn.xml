@@ -8,7 +8,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<flow name="get-covid-case-by-ssnFlow" doc:id="6352f6e4-3486-405e-96d3-49eb3806254b" >
 		<http:listener doc:name="Get Covid cases by nationalId" doc:id="415987c1-d095-44d6-a54a-469028c356bc" config-ref="HTTP_Listener_config" allowedMethods="GET" path="/v1/cases/{nationalId}">
-			<http:response statusCode="#[vars.code]" reasonPhrase="#[vars.message]" />
+			<http:response statusCode="#[vars.code]"/>
 		</http:listener>
 		<ee:transform doc:name="Set TransactionId and CorrelationId" doc:id="8d285947-fbf6-4ae6-a4c5-31bda4f65cad" >
 			<ee:message >
@@ -33,7 +33,9 @@ WHERE national_id = :nationalId]]></db:sql>
 	nationalId: attributes.uriParams.nationalId
 }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="Set response" doc:id="f09ba636-c88a-40e0-87e9-76f52e781263">
+		<choice doc:name="Choice" doc:id="28a829ee-17ab-439c-a646-51e4bd6d0bc5" >
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="Set Success response" doc:id="f09ba636-c88a-40e0-87e9-76f52e781263">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -60,11 +62,31 @@ payload map ({
 	updateDate: $.update_date
 })]]></ee:set-payload>
 			</ee:message>
-			<ee:variables >
-				<ee:set-variable variableName="code" ><![CDATA[200]]></ee:set-variable>
-				<ee:set-variable variableName="message" ><![CDATA["Success"]]></ee:set-variable>
+			<ee:variables>
+				<ee:set-variable variableName="code"><![CDATA[200]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Set Not Found Response" doc:id="e7013050-4b45-4e26-8532-b9f2da1ae5d8" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	code: 404,
+	message: "Resource not found",
+	description: "The server has not found anything matching the request-URI",
+	dateTime: now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
+	transactionId: vars.transactionId
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="code" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
 		<logger level="INFO" doc:name="End Log" doc:id="837be11e-1c7f-4e05-8b00-25d90ed0ef68" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed get covid cases by nationalId flow"'/>
 	</flow>
 </mule>
