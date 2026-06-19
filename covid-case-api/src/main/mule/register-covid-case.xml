@@ -10,7 +10,9 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<db:config name="PostgresDatabase" doc:name="Database Config" doc:id="6b7be066-e0e8-43a5-82fb-d91362eb6187" >
-		<db:generic-connection url="jdbc:postgresql://localhost:5433/mule_db" driverClassName="org.postgresql.Driver" user="postgres" password="postgres" />
+		<db:generic-connection url="jdbc:postgresql://localhost:5433/mule_db" driverClassName="org.postgresql.Driver" user="postgres" password="postgres" >
+			<db:pooling-profile />
+		</db:generic-connection>
 	</db:config>
 	<flow name="register-covid-caseFlow" doc:id="2b08e174-a8fb-4b0a-952d-ba71c0003ccc" >
 		<http:listener doc:name="Register Covid case" doc:id="f9c6c25d-51c6-4699-b5f8-166b45508464" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="POST">
