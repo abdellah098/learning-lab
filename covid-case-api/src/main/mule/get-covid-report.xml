@@ -1,11 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<flow name="get-covid-reportFlow" doc:id="1ba9be11-45ba-4a87-bb58-7ace3eb40046" >
-		<http:listener doc:name="HTTP: GET /v1/reports" doc:id="3ea15382-3205-4cca-9f1b-b8bac138f5d3" config-ref="HTTP_Listener_config" path="/v1/reports" allowedMethods="GET"/>
-		<logger level="INFO" doc:name="Log state query params" doc:id="5910bd79-3584-4965-9a45-388e76c7111e" message="#[attributes.queryParams.state]"/>
+		<http:listener doc:name="Get covid case report" doc:id="3ea15382-3205-4cca-9f1b-b8bac138f5d3" config-ref="HTTP_Listener_config" path="/v1/reports" allowedMethods="GET"/>
+		<ee:transform doc:name="Set TransactionId and CorrelationId" doc:id="edaca676-134c-4935-8e61-98fb00d8b3dc" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.'x-transaction-id' default uuid()]]></ee:set-variable>
+				<ee:set-variable variableName="correlationId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.'x-correlation-id' default attributes.queryParams.state]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Start Log" doc:id="5910bd79-3584-4965-9a45-388e76c7111e" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Start get covid case report flow"'/>
+		<ee:transform doc:name="Prepare Query" doc:id="1ae56b6a-fe1e-4156-a123-5cc297070ef8">
+			<ee:message>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="getReportQuery" ><![CDATA[%dw 2.0
+output application/java
+---
+if (!isEmpty(attributes.queryParams.state))
+	"SELECT COUNT(*) AS count, case_type, state FROM cvd_case_master WHERE UPPER(state) = '$(upper(attributes.queryParams.state default ''))' GROUP BY case_type, state"
+else
+	"SELECT COUNT(*) AS count, case_type, state FROM cvd_case_master GROUP BY case_type, state"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Execute Query" doc:id="fa192c9c-8541-42a5-ad86-03e65f8af903" config-ref="PostgresDatabase">
+			<db:sql ><![CDATA[#["$(vars.getReportQuery)"]]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Set Response" doc:id="c79e3e35-6e70-4920-907d-86e10ac5062b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+fun vaccinatedCount(state) = 
+    (payload filter (($.STATE == state as String) and ($.CASE_TYPE == 'vaccinated') )
+            map ($.COUNT))[0]
+
+---
+(payload groupBy ((item, index) -> item.STATE)
+        mapObject ((value, key, index) -> (
+            reportItem: {
+                state: key,
+                report: {
+                    total: (value.COUNT reduce ((item, acc = 0) -> acc + item)) - ((vaccinatedCount(key) as Number default 0)),
+                    (value map {
+                        ($.CASE_TYPE) : $.COUNT
+                    })
+                }
+            }
+        ))).*reportItem  default  []]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Log" doc:id="90b79145-983c-491a-ab3a-eaeed1033b6a" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed get covid case report flow"'/>
 	</flow>
 </mule>
