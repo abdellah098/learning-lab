@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<sub-flow name="covid-case-validation-sub-flow" doc:id="4b86f867-e812-40ee-9c53-a78d29946e38" >
+		<logger level="INFO" doc:name="Covid Case validation" doc:id="99d3a58b-0c25-44ed-a4db-a97d9efae81a" message='#["Perform covid case validation"]' />
+		<validation:all doc:name="All" doc:id="9f446958-5859-465b-9be2-6eb2be070f47" >
+			<validation:is-not-null doc:name="Source Field Required" doc:id="f5ca6dd7-d5e2-4abb-a81e-d48205e29e16" value="#[payload.source]" message='#["source filed is required"]' />
+			<validation:is-not-null doc:name="CaseType field Required" doc:id="7d6281b1-06b5-4565-b0b3-70c832b7fda6" value="#[payload.caseType]" message='#["caseType field is required"]' />
+			<validation:is-not-null doc:name="FirstName Field Required" doc:id="58089231-4125-43f3-8461-33e1491a726a" value="#[payload.firstName]" message='#["firstName field is required"]' />
+			<validation:is-not-null doc:name="LastName Field Required" doc:id="289f2567-b4d7-42f8-8135-c0717097d170" value="#[payload.lastName]" message='#["lastName field is required"]' />
+			<validation:is-not-null doc:name="Phone Field Required" doc:id="7a687d71-aee2-46fb-a510-1ab454e7a206" value="#[payload.phone]" message='#["phone field is required"]' />
+			<validation:matches-regex doc:name="DateOfBirth Invalid Format" doc:id="57fb241f-2673-4837-b091-469570efa6bc" value="#[payload.dateOfBirth]" regex='#["(\d{4})-(0[1-9]|1[0-2]|[1-9])-([1-9]|0[1-9]|[1-2]\d|3[0-1])"]' message='#["dateOfBirth format is invalid. Valid format is YYYY-MM-DD"]' />
+			<validation:is-not-null doc:name="NationalID Field Required" doc:id="31e3ad6a-88c4-40dc-9bb8-580f4dd2491b" value="#[payload.nationalID]" message='#["nationalID field is required"]' />
+			<validation:is-not-null doc:name="NationalIDType Field Required" doc:id="391eec39-0ac5-46ac-bf8e-ca2863119d2a" value="#[payload.nationalIDType]" message='#["nationalIDType field is required"]' />
+			<validation:is-not-null doc:name="StreetAddress Field Required" doc:id="233c77bd-e759-423f-ab86-00cdafd9302d" value="#[payload.address.streetAddress]" message='#["streetAddress field is required"]' />
+			<validation:is-not-null doc:name="City Field Required" doc:id="54d5d699-f6c1-4890-87a7-8b687c718b68" value="#[payload.address.city]" message='#["city field is required"]' />
+			<validation:is-not-null doc:name="State Field Required" doc:id="072c3c8c-71d4-494e-8668-1304c2d2f22e" value="#[payload.address.state]" message='#["state field is required"]' />
+			<validation:is-not-null doc:name="Postal Field Required" doc:id="006e546c-79a2-4233-9fbc-0c0d1d34b0b2" value="#[payload.address.postal]" message='#["postal field is required"]' />
+			<validation:is-not-null doc:name="Country Field Required" doc:id="bbfb1cf8-3fb9-4f95-a9f6-fc9114cba298" value="#[payload.address.country]" message='#["country field is required"]' />
+		</validation:all>
+	</sub-flow>
+</mule>
