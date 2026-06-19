@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<flow name="update-covid-caseFlow" doc:id="d8d7cfb3-9597-440e-9831-a824618b464f" >
 		<http:listener doc:name="Update Covid Case" doc:id="d7687901-50ba-4e2e-b4dd-807e300a7c7a" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="PUT">
 			<http:response statusCode="#[vars.code]" reasonPhrase="#[vars.message]"/>
@@ -25,6 +26,30 @@ attributes.headers.'x-correlation-id' default payload.covidCase.caseID]]></ee:se
 			</ee:variables>
 		</ee:transform>
 		<logger level="INFO" doc:name="Start Log" doc:id="5fdfd65a-79ab-4763-a896-2c5532fa8a1f" message='TransactionId: #[vars.transactionId], correlationId: #[vars.correlationId], message: "Started update covid case flow", Payload: #[payload]'/>
+		<ee:transform doc:name="Transform Message" doc:id="483d9aa9-0645-42ad-bfa8-766c2a73d7c5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload.covidCase]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<validation:all doc:name="All" doc:id="0930d786-2725-465a-834d-eedd2b7c81f1">
+			<validation:is-not-null doc:name="CaseIDField Required" doc:id="9bd06136-be92-476d-b9ea-88b3e31e856e" value="#[payload.caseID]" message='#["caseId filed is required"]' />
+			<validation:is-not-null doc:name="Source Field Required" doc:id="46caf4d9-bc26-46bf-a646-136218588340" value="#[payload.source]" message='#["source filed is required"]' />
+			<validation:is-not-null doc:name="CaseType field Required" doc:id="56ef4ab1-84fe-44e9-8d84-7a14448edb01" value="#[payload.caseType]" message='#["caseType field is required"]' />
+			<validation:is-not-null doc:name="FirstName Field Required" doc:id="b12626b0-e6d7-49cf-a9f7-1d160f751a00" value="#[payload.firstName]" message='#["firstName field is required"]' />
+			<validation:is-not-null doc:name="LastName Field Required" doc:id="09dc24d1-86a9-4a71-b558-e7fd4b0a94d7" value="#[payload.lastName]" message='#["lastName field is required"]' />
+			<validation:is-not-null doc:name="Phone Field Required" doc:id="be459273-5e9c-4ca9-b9b5-fa9dda6afa58" value="#[payload.phone]" message='#["phone field is required"]' />
+			<validation:matches-regex doc:name="DateOfBirth Invalid Format" doc:id="395cbb20-b13d-4379-bf5d-90d5bcec6eb4" value="#[payload.dateOfBirth]" regex='#["(\d{4})-(0[1-9]|1[0-2]|[1-9])-([1-9]|0[1-9]|[1-2]\d|3[0-1])"]' message='#["dateOfBirth format is invalid. Valid format is YYYY-MM-DD"]' />
+			<validation:is-not-null doc:name="NationalID Field Required" doc:id="5b328bf1-b362-42e1-b96e-5ddc7f9f45e2" value="#[payload.nationalID]" message='#["nationalID field is required"]' />
+			<validation:is-not-null doc:name="NationalIDType Field Required" doc:id="bac9a97f-178d-4962-85fb-a3345e0b6dcd" value="#[payload.nationalIDType]" message='#["nationalIDType field is required"]' />
+			<validation:is-not-null doc:name="StreetAddress Field Required" doc:id="5218b480-ba5a-4ff3-987a-0f40222049f1" value="#[payload.address.streetAddress]" message='#["streetAddress field is required"]' />
+			<validation:is-not-null doc:name="City Field Required" doc:id="f6e618c4-4e0b-455f-b3ea-acaa8120575a" value="#[payload.address.city]" message='#["city field is required"]' />
+			<validation:is-not-null doc:name="State Field Required" doc:id="ee4a1a53-3bbd-42dc-8e86-2f0ca8dd67c0" value="#[payload.address.state]" message='#["state field is required"]' />
+			<validation:is-not-null doc:name="Postal Field Required" doc:id="10f5c331-99a2-4cc4-ad06-bc81f1c5f818" value="#[payload.address.postal]" message='#["postal field is required"]' />
+			<validation:is-not-null doc:name="Country Field Required" doc:id="fdf65bb3-2089-486c-acf7-6a5b5edf2ffd" value="#[payload.address.country]" message='#["country field is required"]' />
+		</validation:all>
 		<ee:transform doc:name="Prepare covid case payload" doc:id="c396e911-5e47-4de5-96cc-f6d1262cebbd">
 			<ee:message>
 			</ee:message>
@@ -33,21 +58,21 @@ attributes.headers.'x-correlation-id' default payload.covidCase.caseID]]></ee:se
 output application/json
 ---
 {
-	caseId: payload.covidCase.caseID,
-	source: payload.covidCase.source,
-	caseType: payload.covidCase.caseType,
-	firstName: payload.covidCase.firstName,
-	lastName: payload.covidCase.lastName,
-	phone: payload.covidCase.phone,
-	email: payload.covidCase.email,
-	dateOfBirth: payload.covidCase.dateOfBirth,
-	nationalId: payload.covidCase.nationalID,
-	nationalIdType: payload.covidCase.nationalIDType,
-	streetAddress: payload.covidCase.address.streetAddress,
-	city: payload.covidCase.address.city,
-	state: payload.covidCase.address.state,
-	postal: payload.covidCase.address.postal,
-	country: payload.covidCase.address.country,
+	caseId: payload.caseID,
+	source: payload.source,
+	caseType: payload.caseType,
+	firstName: payload.firstName,
+	lastName: payload.lastName,
+	phone: payload.phone,
+	email: payload.email,
+	dateOfBirth: payload.dateOfBirth,
+	nationalId: payload.nationalID,
+	nationalIdType: payload.nationalIDType,
+	streetAddress: payload.address.streetAddress,
+	city: payload.address.city,
+	state: payload.address.state,
+	postal: payload.address.postal,
+	country: payload.address.country,
 	updateDate: now() as String {format: "yyyy-MM-dd"}
 }]]></ee:set-variable>
 			</ee:variables>

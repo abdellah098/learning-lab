@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8a42f0c8-6f62-46b2-ad65-1b9d05f7a9ba" basePath="/covid" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
@@ -18,9 +19,6 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		<http:listener doc:name="Register Covid case" doc:id="f9c6c25d-51c6-4699-b5f8-166b45508464" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="POST">
 			<http:response statusCode="#[vars.code]" reasonPhrase='#[vars.message]' >
 			</http:response>
-			<http:error-response >
-				<http:body ><![CDATA[output text/plain --- error.description]]></http:body>
-			</http:error-response>
 		</http:listener>
 		<ee:transform doc:name="Set TransformationId and CorrelationId" doc:id="2dfb9939-567b-4bfb-a876-1c0d86db37cc" >
 			<ee:message >
@@ -37,6 +35,21 @@ attributes.headers.'x-correlation-id' default payload.nationalID]]></ee:set-vari
 			</ee:variables>
 		</ee:transform>
 		<logger level="INFO" doc:name="Start Log" doc:id="5ba5052e-fed6-41ca-a62c-c8f33fdf8af2" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Started covid case create flow", Payload: #[payload]'/>
+		<validation:all doc:name="All" doc:id="9fc68270-c48b-4300-b3e6-2a5722a4b4e7" >
+			<validation:is-not-null doc:name="Source Field Required" doc:id="b80f561b-d4bf-44e7-87b1-b247918e872c" value="#[payload.source]" message='#["source filed is required"]'/>
+			<validation:is-not-null doc:name="CaseType field Required" doc:id="c3318f47-bd1b-4910-915b-d0e2e8b52d60" value="#[payload.caseType]" message='#["caseType field is required"]'/>
+			<validation:is-not-null doc:name="FirstName Field Required" doc:id="db19f700-a0db-45b5-b17a-166cce528da1" value="#[payload.firstName]" message='#["firstName field is required"]'/>
+			<validation:is-not-null doc:name="LastName Field Required" doc:id="5cdbe40a-d973-455b-ac6f-ba6b9b7fca99" value="#[payload.lastName]" message='#["lastName field is required"]'/>
+			<validation:is-not-null doc:name="Phone Field Required" doc:id="c1e85cbb-4781-4453-a0fe-41e140e8e797" value="#[payload.phone]" message='#["phone field is required"]'/>
+			<validation:matches-regex doc:name="DateOfBirth Invalid Format" doc:id="4d8782c6-b7ab-4621-8bc8-b74ab3495cd8" value="#[payload.dateOfBirth]" regex='#["(\d{4})-(0[1-9]|1[0-2]|[1-9])-([1-9]|0[1-9]|[1-2]\d|3[0-1])"]' message='#["dateOfBirth format is invalid. Valid format is YYYY-MM-DD"]'/>
+			<validation:is-not-null doc:name="NationalID Field Required" doc:id="11144d14-ba92-4128-ba41-eecfc831419f" value="#[payload.nationalID]" message='#["nationalID field is required"]'/>
+			<validation:is-not-null doc:name="NationalIDType Field Required" doc:id="989ecc49-cb95-4eb7-a50a-3f8c896b29f6" value="#[payload.nationalIDType]" message='#["nationalIDType field is required"]' />
+			<validation:is-not-null doc:name="StreetAddress Field Required" doc:id="6a59d6ad-e53d-4365-9444-e8932f56c22f" value="#[payload.address.streetAddress]" message='#["streetAddress field is required"]' />
+			<validation:is-not-null doc:name="City Field Required" doc:id="7e954103-a2ec-4480-b0bf-3a2b63468339" value="#[payload.address.city]" message='#["city field is required"]' />
+			<validation:is-not-null doc:name="State Field Required" doc:id="feff47bd-98f3-4bf2-ad9c-44f25449bc03" value="#[payload.address.state]" message='#["state field is required"]' />
+			<validation:is-not-null doc:name="Postal Field Required" doc:id="170e4104-44a2-4e03-8779-d985aacbb143" value="#[payload.address.postal]" message='#["postal field is required"]' />
+			<validation:is-not-null doc:name="Country Field Required" doc:id="ef38a69c-21b3-4a90-bfbd-c30ff5ec4efb" value="#[payload.address.country]" message='#["country field is required"]' />
+		</validation:all>
 		<ee:transform doc:name="Prepare covid case payload" doc:id="41186cf2-342c-4bce-b3ce-268ae4449659" >
 			<ee:message >
 			</ee:message>
@@ -90,14 +103,5 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="57447f60-e213-4d42-9416-548e32763455" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed create covid case flow", Payload: #[payload]'/>
-	</flow>
-	<flow name="register-covid-caseFlow1" doc:id="8a98fa37-d21f-403a-b54c-427a98540955" >
-		<logger level="INFO" doc:name="Logger" doc:id="582a12b9-a228-4a10-bc8f-ab245386d3b6" />
-		<db:select doc:name="Select Id" doc:id="bf9889cc-1876-4a37-aac1-3881380084f6" config-ref="PostgresDatabase">
-			<db:sql><![CDATA[SELECT MAX (case_id) as case_id FROM CVD_CASE_MASTER WHERE national_id = :nationalId]]></db:sql>
-			<db:input-parameters><![CDATA[#[{
-	nationalId: vars.covideCasePayload.nationalId
-}]]]></db:input-parameters>
-		</db:select>
 	</flow>
 </mule>

@@ -67,4 +67,13 @@ type create_covid_case_request = {|
   </types:enrichment>
   <types:enrichment select="#f09ba636-c88a-40e0-87e9-76f52e781263"/>
   <types:enrichment select="#1ae56b6a-fe1e-4156-a123-5cc297070ef8"/>
+  <types:enrichment select="#483d9aa9-0645-42ad-bfa8-766c2a73d7c5">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="update_covid_case_request"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
 </types:mule>
