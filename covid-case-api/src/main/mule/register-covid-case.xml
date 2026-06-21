@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8a42f0c8-6f62-46b2-ad65-1b9d05f7a9ba" basePath="/covid" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
@@ -19,6 +20,9 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 		<http:listener doc:name="Register Covid case" doc:id="f9c6c25d-51c6-4699-b5f8-166b45508464" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="POST">
 			<http:response statusCode="#[vars.code]" reasonPhrase='#[vars.message]' >
 			</http:response>
+			<http:error-response >
+				<http:body ><![CDATA[#[output text/plain --- error.errorMessage.payload.message[0]]]]></http:body>
+			</http:error-response>
 		</http:listener>
 		<ee:transform doc:name="Set TransformationId and CorrelationId" doc:id="2dfb9939-567b-4bfb-a876-1c0d86db37cc" >
 			<ee:message >
@@ -35,7 +39,8 @@ attributes.headers.'x-correlation-id' default payload.nationalID]]></ee:set-vari
 			</ee:variables>
 		</ee:transform>
 		<logger level="INFO" doc:name="Start Log" doc:id="5ba5052e-fed6-41ca-a62c-c8f33fdf8af2" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Started covid case create flow", Payload: #[payload]'/>
-		<flow-ref doc:name="Covid case validation sub flow" doc:id="aa5d8e8e-bfce-418b-9603-729c7f65dce4" name="covid-case-validation-sub-flow"/>
+		<json:validate-schema doc:name="Validate Payload Json schema" doc:id="e7fcae16-4db3-4842-91f8-a3539ae2dfa0" schema="schemas/create-covid-case-request-schema.json"/>
+		<!-- [STUDIO:"Covid case validation sub flow"]<flow-ref doc:name="Covid case validation sub flow" doc:id="aa5d8e8e-bfce-418b-9603-729c7f65dce4" name="covid-case-validation-sub-flow"/> [STUDIO] -->
 		<ee:transform doc:name="Prepare covid case payload" doc:id="41186cf2-342c-4bce-b3ce-268ae4449659" >
 			<ee:message >
 			</ee:message>

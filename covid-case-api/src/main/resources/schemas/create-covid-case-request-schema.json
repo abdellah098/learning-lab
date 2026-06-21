@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string"
+    },
+    "caseType": {
+      "type": "string"
+    },
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "dateOfBirth": {
+      "type": "string"
+    },
+    "nationalID": {
+      "type": "string"
+    },
+    "nationalIDType": {
+      "type": "string"
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "streetAddress": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "postal": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "streetAddress",
+        "city",
+        "state",
+        "postal",
+        "country"
+      ]
+    }
+  },
+  "required": [
+    "source",
+    "caseType",
+    "firstName",
+    "lastName",
+    "phone",
+    "dateOfBirth",
+    "nationalID",
+    "nationalIDType",
+    "address"
+  ]
+}
