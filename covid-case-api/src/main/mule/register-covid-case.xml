@@ -8,13 +8,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8a42f0c8-6f62-46b2-ad65-1b9d05f7a9ba" basePath="/covid" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
-	</http:listener-config>
-	<db:config name="PostgresDatabase" doc:name="Database Config" doc:id="6b7be066-e0e8-43a5-82fb-d91362eb6187" >
-		<db:generic-connection url="jdbc:postgresql://localhost:5433/mule_db" driverClassName="org.postgresql.Driver" user="postgres" password="postgres" >
-		</db:generic-connection>
-	</db:config>
 	<flow name="register-covid-caseFlow" doc:id="2b08e174-a8fb-4b0a-952d-ba71c0003ccc" >
 		<http:listener doc:name="Register Covid case" doc:id="f9c6c25d-51c6-4699-b5f8-166b45508464" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="POST">
 			<http:response statusCode="#[vars.statusCode]">
