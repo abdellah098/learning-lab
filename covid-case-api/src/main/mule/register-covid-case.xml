@@ -13,7 +13,6 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 	</http:listener-config>
 	<db:config name="PostgresDatabase" doc:name="Database Config" doc:id="6b7be066-e0e8-43a5-82fb-d91362eb6187" >
 		<db:generic-connection url="jdbc:postgresql://localhost:5433/mule_db" driverClassName="org.postgresql.Driver" user="postgres" password="postgres" >
-			<db:pooling-profile />
 		</db:generic-connection>
 	</db:config>
 	<flow name="register-covid-caseFlow" doc:id="2b08e174-a8fb-4b0a-952d-ba71c0003ccc" >
@@ -107,6 +106,9 @@ output application/json
    "transactionId": vars.transactionId
 }]]></ee:set-payload>
 					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
 				</ee:transform>
 			</on-error-propagate>
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="fd048a0e-b8c7-4b9c-b7f5-88ded932ac97" type="DB:CONNECTIVITY">
@@ -123,6 +125,9 @@ output application/json
    "transactionId": vars.transactionId
 }]]></ee:set-payload>
 					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[503]]></ee:set-variable>
+					</ee:variables>
 				</ee:transform>
 			</on-error-propagate>
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b5b8f74c-a97f-4919-9a25-05db1afdcade" type="ANY">
@@ -139,6 +144,9 @@ output application/json
    "transactionId": vars.transactionId
 }]]></ee:set-payload>
 					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
 				</ee:transform>
 			</on-error-propagate>
 		</error-handler>

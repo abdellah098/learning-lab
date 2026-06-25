@@ -7,7 +7,11 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<flow name="get-covid-reportFlow" doc:id="1ba9be11-45ba-4a87-bb58-7ace3eb40046" >
-		<http:listener doc:name="Get covid case report" doc:id="3ea15382-3205-4cca-9f1b-b8bac138f5d3" config-ref="HTTP_Listener_config" path="/v1/reports" allowedMethods="GET"/>
+		<http:listener doc:name="Get covid case report" doc:id="3ea15382-3205-4cca-9f1b-b8bac138f5d3" config-ref="HTTP_Listener_config" path="/v1/reports" allowedMethods="GET">
+			<http:error-response statusCode="#[vars.statusCode]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
 		<ee:transform doc:name="Set TransactionId and CorrelationId" doc:id="edaca676-134c-4935-8e61-98fb00d8b3dc" >
 			<ee:message >
 			</ee:message>
@@ -64,5 +68,45 @@ fun vaccinatedCount(state) =
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name="End Log" doc:id="90b79145-983c-491a-ab3a-eaeed1033b6a" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed get covid case report flow"'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b59ca3e5-7b4d-4994-82b8-f0d0248288da" type="DB:CONNECTIVITY" >
+				<ee:transform doc:name="Service unavailable Response" doc:id="2b8d6d42-53fa-4a8e-af5c-c488a87a86db" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+   "code":503,
+   "message":"Service unavailable",
+   "description":"The (upstream) service is temporarily   not available",
+   "dateTime": now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
+   "transactionId": vars.transactionId
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[503]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="9c737bbd-7148-4e2e-acff-7d79039be4d8" type="ANY" >
+				<ee:transform doc:name="Set Internal Server error Response" doc:id="2b44d9dd-0614-45f8-9049-789fbda5e55b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+   "code":500,
+   "message":"Internal Server Error",
+   "description":"The server encountered an unexpected condition which prevented it from fulfilling the request",
+   "dateTime": now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
+   "transactionId": vars.transactionId
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>

@@ -77,4 +77,6 @@ type create_covid_case_request = {|
     </types:processor-declaration>
   </types:enrichment>
   <types:enrichment select="#33a6f7b6-75fe-4c3e-961b-11c981ea0768"/>
+  <types:enrichment select="#f97bc9e3-2862-4fef-a3c2-b0774b609af5"/>
+  <types:enrichment select="#e7013050-4b45-4e26-8532-b9f2da1ae5d8"/>
 </types:mule>

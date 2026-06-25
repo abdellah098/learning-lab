@@ -8,7 +8,9 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<flow name="get-covid-case-by-ssnFlow" doc:id="6352f6e4-3486-405e-96d3-49eb3806254b" >
 		<http:listener doc:name="Get Covid cases by nationalId" doc:id="415987c1-d095-44d6-a54a-469028c356bc" config-ref="HTTP_Listener_config" allowedMethods="GET" path="/v1/cases/{nationalId}">
-			<http:response statusCode="#[vars.code]"/>
+			<http:error-response statusCode="#[vars.statusCode]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
 		</http:listener>
 		<ee:transform doc:name="Set TransactionId and CorrelationId" doc:id="8d285947-fbf6-4ae6-a4c5-31bda4f65cad" >
 			<ee:message >
@@ -63,30 +65,73 @@ payload map ({
 })]]></ee:set-payload>
 			</ee:message>
 			<ee:variables>
-				<ee:set-variable variableName="code"><![CDATA[200]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 			</when>
-			<otherwise >
-				<ee:transform doc:name="Set Not Found Response" doc:id="e7013050-4b45-4e26-8532-b9f2da1ae5d8" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+			<otherwise>
+				<raise-error doc:name="Raise CUSTOM:COVID_CASE_NOT_FOUND" doc:id="683792ea-09ca-4cb3-90f7-30e660a270cc" type="CUSTOM:COVID_CASE_NOT_FOUND" description="The server has not found anything matching the request-URI"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Log" doc:id="837be11e-1c7f-4e05-8b00-25d90ed0ef68" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed get covid cases by nationalId flow"'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c1bd82af-2c21-482c-ae08-560bd9e7186b" type="CUSTOM:COVID_CASE_NOT_FOUND">
+				<ee:transform doc:name="Set Covid Case Not Found Response" doc:id="e7013050-4b45-4e26-8532-b9f2da1ae5d8">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	code: 404,
 	message: "Resource not found",
-	description: "The server has not found anything matching the request-URI",
+	description: error.description,
 	dateTime: now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
 	transactionId: vars.transactionId
 }]]></ee:set-payload>
 					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="code" ><![CDATA[404]]></ee:set-variable>
+					<ee:variables>
+						<ee:set-variable variableName="statusCode" ><![CDATA[404]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
-			</otherwise>
-		</choice>
-		<logger level="INFO" doc:name="End Log" doc:id="837be11e-1c7f-4e05-8b00-25d90ed0ef68" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed get covid cases by nationalId flow"'/>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="be23ca22-c8d3-41a2-9ad6-6673dd9789bc" type="DB:CONNECTIVITY">
+				<ee:transform doc:name="Set Service Unavaiable Response" doc:id="bad19119-3c00-4772-abc2-299520f96a5e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	code: 503,
+	message: "Service Unavailable",
+	description: "The (upstream) service is temporarily not available",
+	dateTime: now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'T'"},
+	transactionId: vars.transactionId
+	
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[503]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="70b87e17-96a7-43fb-b5e8-82fea861cf9d" type="ANY">
+				<ee:transform doc:name="Set Internal Server Error" doc:id="7d8252a2-776b-49a8-a3fb-79efdc766ccf" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	code: 500,
+	message: " Internal Server Error",
+	description: "The server encountered an unexpected condition which prevented it from fulfilling the request",
+	dateTime: now()as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
+	transactionId: vars.transactionId
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>
