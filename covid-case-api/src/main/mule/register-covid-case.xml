@@ -8,35 +8,13 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
-	<flow name="register-covid-caseFlow" doc:id="2b08e174-a8fb-4b0a-952d-ba71c0003ccc" >
-		<http:listener doc:name="Register Covid case" doc:id="f9c6c25d-51c6-4699-b5f8-166b45508464" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="POST">
-			<http:response statusCode="#[vars.statusCode]">
-			</http:response>
-			<http:error-response statusCode="#[vars.statusCode]">
-				<http:body ><![CDATA[#[payload]]]></http:body>
-			</http:error-response>
-		</http:listener>
-		<ee:transform doc:name="Set TransformationId and CorrelationId" doc:id="2dfb9939-567b-4bfb-a876-1c0d86db37cc" >
-			<ee:message >
+	<flow name="perform-covid-case-register" doc:id="1f65c422-c9d1-4544-8c8c-33d05f37f3e1" >
+		<json:validate-schema doc:name="Validate Payload Json schema" doc:id="e7fcae16-4db3-4842-91f8-a3539ae2dfa0" schema="schemas/create-covid-case-request-schema.json" />
+		<ee:transform doc:name="Prepare covid case payload" doc:id="41186cf2-342c-4bce-b3ce-268ae4449659">
+			<ee:message>
 			</ee:message>
-			<ee:variables >
-				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
-output application/java
----
-attributes.headers.'x-transaction-id' default uuid()]]></ee:set-variable>
-				<ee:set-variable variableName="correlationId" ><![CDATA[%dw 2.0
-output application/java
----
-attributes.headers.'x-correlation-id' default payload.nationalID]]></ee:set-variable>
-			</ee:variables>
-		</ee:transform>
-		<logger level="INFO" doc:name="Start Log" doc:id="5ba5052e-fed6-41ca-a62c-c8f33fdf8af2" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Started covid case create flow", Payload: #[payload]'/>
-		<json:validate-schema doc:name="Validate Payload Json schema" doc:id="e7fcae16-4db3-4842-91f8-a3539ae2dfa0" schema="schemas/create-covid-case-request-schema.json"/>
-		<ee:transform doc:name="Prepare covid case payload" doc:id="41186cf2-342c-4bce-b3ce-268ae4449659" >
-			<ee:message >
-			</ee:message>
-			<ee:variables >
-				<ee:set-variable variableName="covideCasePayload" ><![CDATA[%dw 2.0
+			<ee:variables>
+				<ee:set-variable variableName="covideCasePayload"><![CDATA[%dw 2.0
 output application/java
 var creationDate: String = now() as String {format: "yyy-MM-dd"}
 var currentUser: String = "Agent-82"
@@ -64,31 +42,30 @@ var currentUser: String = "Agent-82"
 			</ee:variables>
 		</ee:transform>
 		<db:insert doc:name="Insert new covid case" doc:id="8d55ef63-124e-4815-a16f-a5d415168faa" config-ref="PostgresDatabase" autoGenerateKeys="true">
-			<db:sql ><![CDATA[INSERT INTO CVD_CASE_MASTER (SOURCE, CASE_TYPE, FIRST_NAME, LAST_NAME, PHONE, EMAIL, DATE_OF_BIRTH, NATIONAL_ID, NATIONAL_ID_TYPE, STREET_ADDRESS, CITY, STATE, POSTAL, COUNTRY, CREATE_DATE, UPDATE_DATE, CREATE_BY, UPDATE_BY) VALUES (:source, :caseType, :firstName, :lastName, :phone, :email, :dateOfBirth, :nationalId, :nationalIdType, :streetAddresses, :city, :state, :postal, :country, :createDate, :updateDate, :createBy, :updateBy)  ]]></db:sql>
-			<db:input-parameters ><![CDATA[#[vars.covideCasePayload]]]></db:input-parameters>
-			<db:auto-generated-keys-column-names >
+			<db:sql><![CDATA[INSERT INTO CVD_CASE_MASTER (SOURCE, CASE_TYPE, FIRST_NAME, LAST_NAME, PHONE, EMAIL, DATE_OF_BIRTH, NATIONAL_ID, NATIONAL_ID_TYPE, STREET_ADDRESS, CITY, STATE, POSTAL, COUNTRY, CREATE_DATE, UPDATE_DATE, CREATE_BY, UPDATE_BY) VALUES (:source, :caseType, :firstName, :lastName, :phone, :email, :dateOfBirth, :nationalId, :nationalIdType, :streetAddresses, :city, :state, :postal, :country, :createDate, :updateDate, :createBy, :updateBy)  ]]></db:sql>
+			<db:input-parameters><![CDATA[#[vars.covideCasePayload]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names>
 				<db:auto-generated-keys-column-name value="case_id" />
 			</db:auto-generated-keys-column-names>
 		</db:insert>
-		<ee:transform doc:name="Set Response" doc:id="33a6f7b6-75fe-4c3e-961b-11c981ea0768" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+		<ee:transform doc:name="Set Response" doc:id="33a6f7b6-75fe-4c3e-961b-11c981ea0768">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	caseID: payload[0].case_id
 }]]></ee:set-payload>
 			</ee:message>
-			<ee:variables >
-				<ee:set-variable variableName="statusCode" ><![CDATA[201]]></ee:set-variable>
+			<ee:variables>
+				<ee:set-variable variableName="statusCode"><![CDATA[201]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="57447f60-e213-4d42-9416-548e32763455" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed create covid case flow", Payload: #[payload]'/>
 		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="" doc:id="40e7c601-07c8-456b-bebd-38ba75076b71" type="JSON:SCHEMA_NOT_HONOURED">
-				<ee:transform doc:name="Set Invalid Payload Response" doc:id="68f64e11-0c8d-4726-a113-9e9ec0d31e5c" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="76a777e7-5133-41e6-8818-392b04c89ec3" type="JSON:SCHEMA_NOT_HONOURED">
+				<ee:transform doc:name="Set Invalid Payload Response" doc:id="68f64e11-0c8d-4726-a113-9e9ec0d31e5c">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
@@ -99,49 +76,37 @@ output application/json
    "transactionId": vars.transactionId
 }]]></ee:set-payload>
 					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="statusCode" ><![CDATA[400]]></ee:set-variable>
+					<ee:variables>
+						<ee:set-variable variableName="statusCode"><![CDATA[400]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="fd048a0e-b8c7-4b9c-b7f5-88ded932ac97" type="DB:CONNECTIVITY">
-				<ee:transform doc:name="Service unavailable Response" doc:id="e43ba8f6-6eac-4cc7-a6ae-658e23b94fb2" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-   "code":503,
-   "message":"Service unavailable",
-   "description":"The (upstream) service is temporarily   not available",
-   "dateTime": now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
-   "transactionId": vars.transactionId
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="statusCode" ><![CDATA[503]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b5b8f74c-a97f-4919-9a25-05db1afdcade" type="ANY">
-				<ee:transform doc:name="Set Internal Server error Response" doc:id="0ef77884-a5de-4faa-b7eb-81b3a413bd0c" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-   "code":500,
-   "message":"Internal Server Error",
-   "description":"The server encountered an unexpected condition which prevented it from fulfilling the request",
-   "dateTime": now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
-   "transactionId": vars.transactionId
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="statusCode" ><![CDATA[500]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
+			</on-error-continue>
 		</error-handler>
+	</flow>
+	<flow name="register-covid-caseFlow" doc:id="2b08e174-a8fb-4b0a-952d-ba71c0003ccc" >
+		<http:listener doc:name="Register Covid case" doc:id="f9c6c25d-51c6-4699-b5f8-166b45508464" config-ref="HTTP_Listener_config" path="/v1/cases" allowedMethods="POST">
+			<http:response statusCode="#[vars.statusCode default 200]">
+			</http:response>
+			<http:error-response statusCode="#[vars.statusCode]">
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Set TransformationId and CorrelationId" doc:id="2dfb9939-567b-4bfb-a876-1c0d86db37cc" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.'x-transaction-id' default uuid()]]></ee:set-variable>
+				<ee:set-variable variableName="correlationId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.'x-correlation-id' default payload.nationalID]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Start Log" doc:id="5ba5052e-fed6-41ca-a62c-c8f33fdf8af2" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Started covid case create flow", Payload: #[payload]'/>
+		<flow-ref doc:name="Flow Reference" doc:id="6936c8fe-728e-4627-bd46-4bea67d4e59e" name="perform-covid-case-register"/>
+		<logger level="INFO" doc:name="End Log" doc:id="57447f60-e213-4d42-9416-548e32763455" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed create covid case flow", Payload: #[payload]'/>
 	</flow>
 </mule>

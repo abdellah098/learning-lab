@@ -1,0 +1,23 @@
+%dw 2.0
+
+type auto_1f65c422_c9d1_4544_8c8c_33d05f37f3e1_Output_Variables_covideCasePayload = {|
+  source: String, 
+  caseType: String, 
+  firstName: Null, 
+  lastName: String, 
+  phone: String, 
+  email: String, 
+  dateOfBirth: String, 
+  nationalId: String, 
+  nationalIdType: String, 
+  streetAddresses: String, 
+  city: String, 
+  state: String, 
+  postal: String, 
+  country: String, 
+  createDate: String, 
+  updateDate: String, 
+  createBy: String, 
+  updateBy: String
+|}
+

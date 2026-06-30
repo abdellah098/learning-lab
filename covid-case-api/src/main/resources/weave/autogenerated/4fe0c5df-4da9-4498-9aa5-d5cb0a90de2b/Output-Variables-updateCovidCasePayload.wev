@@ -1,0 +1,21 @@
+%dw 2.0
+
+type auto_4fe0c5df_4da9_4498_9aa5_d5cb0a90de2b_Output_Variables_updateCovidCasePayload = {|
+  caseId: Null, 
+  source: Null, 
+  caseType: Null, 
+  firstName: Null, 
+  lastName: Null, 
+  phone: Null, 
+  email: Null, 
+  dateOfBirth: Null, 
+  nationalId: Null, 
+  nationalIdType: Null, 
+  streetAddress: Null, 
+  city: Null, 
+  state: Null, 
+  postal: Null, 
+  country: Null, 
+  updateDate: String {"format": "yyyy-MM-dd"}
+|}
+

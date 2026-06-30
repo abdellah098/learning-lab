@@ -28,21 +28,26 @@ attributes.headers.'x-correlation-id' default payload.covidCase.caseID]]></ee:se
 			</ee:variables>
 		</ee:transform>
 		<logger level="INFO" doc:name="Start Log" doc:id="5fdfd65a-79ab-4763-a896-2c5532fa8a1f" message='TransactionId: #[vars.transactionId], correlationId: #[vars.correlationId], message: "Started update covid case flow", Payload: #[payload]'/>
-		<ee:transform doc:name="Set payload" doc:id="483d9aa9-0645-42ad-bfa8-766c2a73d7c5" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+		<flow-ref doc:name="Flow Reference" doc:id="a2dd2e54-2930-455c-801e-2a3e24c0df23" name="update-covid-case"/>
+		<logger level="INFO" doc:name="End Log" doc:id="739e61db-5fbb-40b0-ae3a-de11657c0cde" message='TransactionId: #[vars.transactionId], correctionId: #[vars.correlationId], message: "Completed update covid case flow", Payload: #[payload]'/>
+	</flow>
+	<flow name="update-covid-case" doc:id="4fe0c5df-4da9-4498-9aa5-d5cb0a90de2b" >
+		<logger level="INFO" doc:name="Logger" doc:id="48830a9f-8c9a-4b62-a363-658550897ebb" />
+		<ee:transform doc:name="Set payload" doc:id="483d9aa9-0645-42ad-bfa8-766c2a73d7c5">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 payload.covidCase]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<validation:is-not-null doc:name="CaseID field required" doc:id="1c18d020-7090-4b52-8e4e-59c40cdda24f" value="#[payload.caseID]" message='#["caseId field is required"]'/>
+		<validation:is-not-null doc:name="CaseID field required" doc:id="1c18d020-7090-4b52-8e4e-59c40cdda24f" value="#[payload.caseID]" message='#["caseId field is required"]' />
 		<flow-ref doc:name="Covid-case-validation-sub-flow" doc:id="d59cbbc2-43b3-46d8-9fe1-d33456ac47e5" name="covid-case-validation-sub-flow" />
 		<ee:transform doc:name="Prepare covid case payload" doc:id="c396e911-5e47-4de5-96cc-f6d1262cebbd">
 			<ee:message>
 			</ee:message>
-			<ee:variables >
-				<ee:set-variable variableName="updateCovidCasePayload" ><![CDATA[%dw 2.0
+			<ee:variables>
+				<ee:set-variable variableName="updateCovidCasePayload"><![CDATA[%dw 2.0
 output application/json
 ---
 {
@@ -85,31 +90,11 @@ output application/xml
 			<ee:variables>
 			</ee:variables>
 		</ee:transform>
-		<logger level="INFO" doc:name="End Log" doc:id="739e61db-5fbb-40b0-ae3a-de11657c0cde" message='TransactionId: #[vars.transactionId], correctionId: #[vars.correlationId], message: "Completed update covid case flow", Payload: #[payload]'/>
 		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="182c154a-9771-4180-a578-379405cefe1b" type="DB:CONNECTIVITY">
-				<ee:transform doc:name="Set Service Unavailbale Response" doc:id="45a7d159-ba73-4095-b9a8-a32df382a194" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	code: 503,
-	message: "Service unavailable",
-	description: "The (upstream) service is temporarily not available",
-	dateTime: now() as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
-	transactionId: vars.transactionId
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="statusCode" ><![CDATA[503]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="9a65e3bf-fa22-43c0-826f-daded2200d9d" type="VALIDATION:MISMATCH, VALIDATION:MULTIPLE, VALIDATION:NULL">
-				<ee:transform doc:name="Set Invalid Request payload Response" doc:id="482a1c09-3f35-4bbc-b408-725896559d5c" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="347f868c-548c-4daf-84a5-ac57df7a9391" type="VALIDATION:MISMATCH, VALIDATION:MULTIPLE, VALIDATION:NULL">
+				<ee:transform doc:name="Set Invalid Request payload Response" doc:id="482a1c09-3f35-4bbc-b408-725896559d5c">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
@@ -122,27 +107,11 @@ output application/json
 
 ]]></ee:set-payload>
 					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="statusCode" ><![CDATA[400]]></ee:set-variable>
+					<ee:variables>
+						<ee:set-variable variableName="statusCode"><![CDATA[400]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1727f4f4-b3bf-46ff-afec-1aa89a6bc3bf" type="ANY">
-				<ee:transform doc:name="Set Internal Server Error Response" doc:id="2c6fe400-e073-4a8e-b894-e0facecef721" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	code: 500,
-	message: " Internal Server Error",
-	description: "The server encountered an unexpected condition which prevented it from fulfilling the request",
-	dateTime: now()as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"},
-	transactionId: vars.transactionId
-}]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
-			</on-error-propagate>
+			</on-error-continue>
 		</error-handler>
 	</flow>
 </mule>

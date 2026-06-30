@@ -14,4 +14,5 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		<db:generic-connection url="jdbc:postgresql://localhost:5433/mule_db" driverClassName="org.postgresql.Driver" user="postgres" password="postgres" >
 		</db:generic-connection>
 	</db:config>
+	<configuration doc:name="Configuration" doc:id="8551b4cf-60d0-4911-93ad-6be74a74d609" defaultErrorHandler-ref="global-error-handlerError_Handler" />
 </mule>
