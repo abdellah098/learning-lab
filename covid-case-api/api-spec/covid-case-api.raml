@@ -13,60 +13,47 @@ traits:
 uses:
   CovidCaseLib: libraries/covidCaseLibrary.raml
 
-types:
-  registerCovidCase: !include types/registerCovidCaseDataType.raml
-  updateCovidCase: !include types/updateCovidCaseDataType.raml
-  getCovidCasesResponse: !include types/getCovidCasesResponseDataType.raml
-  getCovidCasesReport: !include types/getCovidCasesReportResponseDataType.raml
+securitySchemes:
+  basicAuth: !include /exchange_modules/99d7d98f-9020-4aee-b109-e1659d8386c0/covid-cases-basic-auth/1.0.0/covid-cases-basic-auth-security-schema.raml
 
 /cases:
   post:
     is: [requestTracability,errorsTrait,badRequestTrait]
+    securedBy: [basicAuth]
     description: Create new covid case and return the identifiant
     displayName: Create Covid case
     body:
       application/json:
-        type: registerCovidCase
+        type: !include /types/register-covid-case-request-data-type.raml
+        example: !include /examples/register-covid-case-request-payload.json
     responses:
       201:
-        description: Successful case registration
+        description: Successful covid case registration
         body:
           application/json:
-            type: object
-            properties:
-              caseID:
-                type: string
-                required: true
-            example:
-              {
-                "caseID": "3673673"
-              }
+            type: !include /types/register-covid-case-response-data-type.raml
+            example: !include /examples/register-covid-case-response-payload.json
+    
   put:
     is: [requestTracability,errorsTrait, badRequestTrait]
+    securedBy: [basicAuth]
     description: Update existing covid cases
     displayName: Update Covid Case
     body:
       application/xml:
-        type: updateCovidCase
+        type: !include /types/update-covid-case-request-data-type.raml
+        example: !include /examples/update-covid-case-request-payload.xml
     responses:
       200:
         description: Successful case registration
         body:
           application/xml:
-            type: object
-            xml:
-              name: case
-            properties:
-              caseID:
-                type: number
-            example: |
-                  <case>
-                    <caseID>3673673</caseID>
-                  </case>
-
+            type: !include /types/update-covid-case-response-data-type.raml
+            example: !include /examples/update-covid-case-response-payload.xml
   /{nationalID}:
     get:
       is: [requestTracability,errorsTrait]
+      securedBy: [basicAuth]
       description: Get all covid cases by nationalID
       displayName: Get covid cases by nationalID
       responses:
@@ -74,24 +61,19 @@ types:
           description: Successful covid cases fetched
           body:
             application/json:
-              type: getCovidCasesResponse
+              type: !include /types/get-covid-cases-response-data-type.raml
+              example: !include /examples/get-covid-cases-response-payload.json
         404:
           description: Covid cases not found
           body:
             application/json:
               type: CovidCaseLib.errorPayload
-              example:
-                    {
-                      "code": 404,
-                      "message": "Resource not found",
-                      "description": "The server has not found anything matching the Request-URI",
-                      "dateTime":"2021-05-31T06:18:02Z",
-                      "transactionId":"48n32920-69ne-47b4-907d-fa15869f3c4d"
-                    }
+              example: !include /examples/covid-case-not-found-payload.json
 
 /reports:
   get:
     is: [requestTracability,errorsTrait]
+    securedBy: [basicAuth]
     description: Get covid case report
     displayName: Get Covid Case Report
     queryParameters:
@@ -103,15 +85,8 @@ types:
         description: Ok
         body:
           application/json:
-            type: getCovidCasesReport
-            example:
-              - state: "Texas"
-                report:
-                  total: 46744
-                  positive: 436744
-                  recovered: 433744
-                  death: 300
-                  vaccinated: 7847848
+            type: !include /types/get-covid-cases-report-response-dataType.raml
+            example: !include /examples/get-covid-case-report-response-payload.json
 
 
 

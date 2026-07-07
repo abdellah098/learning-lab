@@ -1,10 +1,19 @@
 {
   "main": "covid-case-api.raml",
   "name": "covid-cas-api",
+  "classifier": "raml",
+  "tags": [],
+  "descriptorVersion": "1.0.0",
   "groupId": "99d7d98f-9020-4aee-b109-e1659d8386c0",
   "assetId": "covid-cas-api",
   "version": "1.0.0",
-  "classifier": "raml",
-  "tags": [],
-  "descriptorVersion": "1.0.0"
+  "dependencies": [
+    {
+      "groupId": "99d7d98f-9020-4aee-b109-e1659d8386c0",
+      "assetId": "covid-cases-basic-auth",
+      "version": "1.0.0",
+      "classifier": "raml",
+      "packaging": "zip"
+    }
+  ]
 }
