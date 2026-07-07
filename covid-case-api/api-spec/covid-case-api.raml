@@ -1,0 +1,125 @@
+#%RAML 1.0
+title: Covid Case API
+baseUri: http://localhost:8081/covid/v1
+version: 1.0.0
+description: REST API to manage covid case (create,read, update, get report ..)
+protocols: [HTTP]
+
+traits:
+  errorsTrait: !include traits/errorTrait.raml
+  badRequestTrait: !include traits/badRequestTrait.raml
+  requestTracability: !include traits/requestTracabilityTrait.raml
+
+uses:
+  CovidCaseLib: libraries/covidCaseLibrary.raml
+
+types:
+  registerCovidCase: !include types/registerCovidCaseDataType.raml
+  updateCovidCase: !include types/updateCovidCaseDataType.raml
+  getCovidCasesResponse: !include types/getCovidCasesResponseDataType.raml
+  getCovidCasesReport: !include types/getCovidCasesReportResponseDataType.raml
+
+/cases:
+  post:
+    is: [requestTracability,errorsTrait,badRequestTrait]
+    description: Create new covid case and return the identifiant
+    displayName: Create Covid case
+    body:
+      application/json:
+        type: registerCovidCase
+    responses:
+      201:
+        description: Successful case registration
+        body:
+          application/json:
+            type: object
+            properties:
+              caseID:
+                type: string
+                required: true
+            example:
+              {
+                "caseID": "3673673"
+              }
+  put:
+    is: [requestTracability,errorsTrait, badRequestTrait]
+    description: Update existing covid cases
+    displayName: Update Covid Case
+    body:
+      application/xml:
+        type: updateCovidCase
+    responses:
+      200:
+        description: Successful case registration
+        body:
+          application/xml:
+            type: object
+            xml:
+              name: case
+            properties:
+              caseID:
+                type: number
+            example: |
+                  <case>
+                    <caseID>3673673</caseID>
+                  </case>
+
+  /{nationalID}:
+    get:
+      is: [requestTracability,errorsTrait]
+      description: Get all covid cases by nationalID
+      displayName: Get covid cases by nationalID
+      responses:
+        200:
+          description: Successful covid cases fetched
+          body:
+            application/json:
+              type: getCovidCasesResponse
+        404:
+          description: Covid cases not found
+          body:
+            application/json:
+              type: CovidCaseLib.errorPayload
+              example:
+                    {
+                      "code": 404,
+                      "message": "Resource not found",
+                      "description": "The server has not found anything matching the Request-URI",
+                      "dateTime":"2021-05-31T06:18:02Z",
+                      "transactionId":"48n32920-69ne-47b4-907d-fa15869f3c4d"
+                    }
+
+/reports:
+  get:
+    is: [requestTracability,errorsTrait]
+    description: Get covid case report
+    displayName: Get Covid Case Report
+    queryParameters:
+      state:
+        type: string
+        required: false
+    responses:
+      200:
+        description: Ok
+        body:
+          application/json:
+            type: getCovidCasesReport
+            example:
+              - state: "Texas"
+                report:
+                  total: 46744
+                  positive: 436744
+                  recovered: 433744
+                  death: 300
+                  vaccinated: 7847848
+
+
+
+
+
+
+
+
+
+
+                

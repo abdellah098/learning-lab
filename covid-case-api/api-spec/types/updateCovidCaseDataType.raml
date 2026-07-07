@@ -1,0 +1,59 @@
+#%RAML 1.0 DataType
+type:
+  xml:
+    name: covidCase
+  properties:
+    caseID:
+      type: integer
+    source:
+      type: string
+    caseType:
+      type: string
+    firstName:
+      type: string
+    lastName:
+      type: string
+    phone:
+      type: string
+    email:
+      type: string
+    dateOfBirth:
+      type: string
+    nationalID:
+      type: string
+    nationalIDType:
+      type: string
+    address: 
+      type: object
+      properties:
+        streetAddress:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal:
+          type: string
+        country:
+          type: string
+  example: |
+        <covidCase>
+          <caseID>7</caseID>
+          <source>Hospital1</source>
+          <caseType>positive</caseType>
+          <firstName>John</firstName>
+          <lastName>Nixon</lastName>
+          <phone>541-754-3010</phone>
+          <email>john@gmail.com</email>
+          <dateOfBirth>1989-04-26</dateOfBirth>
+          <nationalID>209-49-6193</nationalID>
+          <nationalIDType>SSN</nationalIDType>
+          <address>
+            <streetAddress>1600 Pennsylvania Avenue NW</streetAddress>
+            <city>Washington</city>
+            <state>DC</state>
+            <postal>20500</postal>
+            <country>USA</country>
+          </address>
+        </covidCase>
+

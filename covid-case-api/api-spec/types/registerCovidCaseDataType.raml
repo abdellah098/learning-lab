@@ -1,0 +1,69 @@
+#%RAML 1.0 DataType
+type:
+  properties:
+    source:
+      type: string
+      required: true
+    caseType:
+      type: string
+      required: true
+    firstName:
+      type: string
+      required: true
+    lastName:
+      type: string
+      required: true
+    phone:
+      type: string
+      required: true
+    email:
+      type: string
+      required: true
+    dateOfBirth:
+      type: string
+      required: true
+    nationalID:
+      type: string
+      required: true
+    nationalIDType:
+      type: string
+      required: true
+    address:
+      type: object
+      properties:
+        streetAddress:
+          type: string
+          required: true
+        city:
+          type: string
+          required: true
+        state:
+          type: string
+          required: true
+        postal:
+          type: string
+          required: true
+        country:
+          type: string
+          required: true
+  example:
+        {
+          "source": "Hospital",
+          "caseType": "death",
+          "firstName": "John",
+          "lastName": "Nixon",
+          "phone": "541-754-3010",
+          "email": "john@gmail.com",
+          "dateOfBirth": "1989-04-26",
+          "nationalID": "209-49-6193",
+          "nationalIDType": "SSN",
+          "address": {
+            "streetAddress": "1600 Pennsylvania Avenue NW",
+            "city": "Washington",
+            "state": "DC",
+            "postal": "20500",
+            "country": "USA"
+          }
+        }
+
+  

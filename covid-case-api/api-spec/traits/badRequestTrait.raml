@@ -1,0 +1,19 @@
+#%RAML 1.0 Trait
+
+uses:
+  CovidCaseLib: ../libraries/covidCaseLibrary.raml
+
+responses:
+  400:
+    description: Invalid JSON payload request
+    body:
+      application/json:
+        type: CovidCaseLib.errorPayload
+        example:
+              {
+                "code":400,
+                "message":"Bad request",
+                "description":"required key caseType not found",
+                "dateTime":"2021-05-29T05:58:02Z",
+                "transactionId":"44b32520-61ee-47b4-907d-fa15869f3c4d"
+              }
