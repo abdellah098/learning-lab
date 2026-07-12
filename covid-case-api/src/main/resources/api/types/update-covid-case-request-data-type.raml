@@ -1,0 +1,93 @@
+#%RAML 1.0 DataType
+type:
+  xml:
+    name: covidCase
+  properties:
+    caseID:
+      type: integer
+      required: true
+      example: 3544
+    source:
+      type: string
+      required: true
+      minLength: 1
+      maxLength: 60
+      example: "The johns hopkins hospital"
+    caseType:
+      type: string
+      required: true
+      minLength: 1
+      maxLength: 20
+      example: "positive"
+    firstName:
+      type: string
+      required: true
+      minLength: 1
+      maxLength: 20
+      example: "John"
+    lastName:
+      type: string
+      required: true
+      minLength: 1
+      maxLength: 20
+      example: "Nixon"
+    phone:
+      type: string
+      required: true
+      minLength: 1
+      maxLength: 12
+    email:
+      type: string
+      required: false
+      minLength: 1
+      maxLength: 50
+      example: "john@gmail.com"
+    dateOfBirth:
+      type: date-only
+      required: true
+      example: "1989-04-26"
+    nationalID:
+      type: string
+      required: true
+      minLength: 1
+      maxLength: 20
+      example: "209-49-6193"
+    nationalIDType:
+      type: string
+      required: true
+      minLength: 1
+      maxLength: 20
+      example: "SSN"
+    address:
+      type: object
+      properties:
+        streetAddress: 
+          type: string
+          required: true
+          minLength: 1
+          maxLength: 30
+          example: "1600 Pennsylvania Avenue NW"
+        city: 
+          type: string
+          required: true
+          minLength: 1
+          maxLength: 30
+          example: "Washington"
+        state: 
+          type: string
+          required: true
+          minLength: 1
+          maxLength: 30
+          example: "DC"
+        postal: 
+          type: string
+          required: true
+          minLength: 1
+          maxLength: 30
+          example: "20500"
+        country: 
+          type: string
+          required: true
+          minLength: 1
+          maxLength: 30
+          example: "USA"

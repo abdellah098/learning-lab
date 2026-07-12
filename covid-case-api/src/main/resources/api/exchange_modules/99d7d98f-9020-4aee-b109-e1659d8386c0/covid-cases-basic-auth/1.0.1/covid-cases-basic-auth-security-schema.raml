@@ -1,0 +1,25 @@
+#%RAML 1.0 SecurityScheme
+description: Mule OAuth 2.0.
+type: OAuth 2.0
+describedBy:
+    headers:
+        Authorization:
+            description: |
+              Used to send a valid OAuth 2 access token. Do not use
+              with the "access_token" query string parameter.
+            type: string
+    queryParameters:
+        access_token:
+            description: |
+              Used to send a valid OAuth 2 access token. Do not use together with
+              the "Authorization" header
+            type: string
+    responses:
+        401:
+            description: Bad or expired token.
+        403:
+            description: Bad OAuth request.
+settings:
+  authorizationUri: http://0.0.0.0:8081/authorize
+  accessTokenUri: http://0.0.0.0:8081/access-token
+  authorizationGrants: [authorization_code, password, client_credentials, implicit]

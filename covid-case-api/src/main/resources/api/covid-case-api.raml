@@ -1,0 +1,102 @@
+#%RAML 1.0
+title: Covid Case API
+baseUri: http://localhost:8081/covid/v1
+version: 1.0.0
+description: REST API to manage covid case (create,read, update, get report ..)
+protocols: [HTTP]
+
+traits:
+  errorsTrait: !include traits/errorTrait.raml
+  badRequestTrait: !include traits/badRequestTrait.raml
+  requestTracability: !include traits/requestTracabilityTrait.raml
+
+uses:
+  CovidCaseLib: libraries/covidCaseLibrary.raml
+
+securitySchemes:
+  oauth_2_0: !include /exchange_modules/99d7d98f-9020-4aee-b109-e1659d8386c0/covid-cases-basic-auth/1.0.1/covid-cases-basic-auth-security-schema.raml
+
+/cases:
+  post:
+    is: [requestTracability,errorsTrait,badRequestTrait]
+    securedBy: [oauth_2_0]
+    description: Create new covid case and return the identifiant
+    displayName: Create Covid case
+    body:
+      application/json:
+        type: !include /types/register-covid-case-request-data-type.raml
+        example: !include /examples/register-covid-case-request-payload.json
+    responses:
+      201:
+        description: Successful covid case registration
+        body:
+          application/json:
+            type: !include /types/register-covid-case-response-data-type.raml
+            example: !include /examples/register-covid-case-response-payload.json
+    
+  put:
+    is: [requestTracability,errorsTrait, badRequestTrait]
+    securedBy: [oauth_2_0]
+    description: Update existing covid cases
+    displayName: Update Covid Case
+    body:
+      application/xml:
+        type: !include /types/update-covid-case-request-data-type.raml
+        example: !include /examples/update-covid-case-request-payload.xml
+    responses:
+      200:
+        description: Successful case registration
+        body:
+          application/xml:
+            type: !include /types/update-covid-case-response-data-type.raml
+            example: !include /examples/update-covid-case-response-payload.xml
+  /{nationalID}:
+    get:
+      is: [requestTracability,errorsTrait]
+      securedBy: [oauth_2_0]
+      description: Get all covid cases by nationalID
+      displayName: Get covid cases by nationalID
+      responses:
+        200:
+          description: Successful covid cases fetched
+          body:
+            application/json:
+              type: !include /types/get-covid-cases-response-data-type.raml
+              example: !include /examples/get-covid-cases-response-payload.json
+        404:
+          description: Covid cases not found
+          body:
+            application/json:
+              type: CovidCaseLib.errorPayload
+              example: !include /examples/covid-case-not-found-payload.json
+
+/reports:
+  get:
+    is: [requestTracability,errorsTrait]
+    securedBy: [oauth_2_0]
+    description: Get covid case report
+    displayName: Get Covid Case Report
+    queryParameters:
+      state:
+        type: string
+        required: false
+    responses:
+      200:
+        description: Ok
+        body:
+          application/json:
+            type: !include /types/get-covid-cases-report-response-dataType.raml
+            example: !include /examples/get-covid-case-report-response-payload.json
+
+/health-check:
+  get:
+    description: Check the application running status
+    displayName: API health check
+    responses:
+      200:
+        body:
+          application/json:
+            example: 
+                  {
+                    "message": "Yes, i'm fine"
+                  }
