@@ -1,20 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	    <flow name="post:\cases:application\json:covid-case-api-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
+		<logger level="INFO" doc:name="Start Log" doc:id="c889e797-f274-4dc8-9fb4-b9da57e59402" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Started covid case create flow", Payload: #[payload]' />
+		<ee:transform doc:name="Prepare Covid Case Payload" doc:id="760607b5-f779-4579-be4f-e32cd56aa53e" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="covideCasePayload" ><![CDATA[%dw 2.0
+output application/java
+var creationDate: String = now() as String {format: "yyy-MM-dd"}
+var currentUser: String = "Agent-82"
+---
+{
+	source: payload.source,
+	caseType: payload.caseType,
+	firstName: payload.firstName, 
+	lastName: payload.lastName,
+	phone: payload.phone,
+	email: payload.email,
+	dateOfBirth: payload.dateOfBirth,
+	nationalId: payload.nationalID,
+	nationalIdType: payload.nationalIDType,
+	streetAddresses: payload.address.streetAddress,
+	city: payload.address.city,
+	state: payload.address.state,
+	postal: payload.address.postal,
+	country: payload.address.country,
+	createDate: creationDate,
+	updateDate: creationDate,
+	createBy: currentUser,
+	updateBy: currentUser
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:insert doc:id="6e07f161-232e-40c0-bddc-b0809eef09d8" config-ref="Database_Config" autoGenerateKeys="true" doc:name="Insert New Covid Case" >
+			<db:sql ><![CDATA[INSERT INTO CVD_CASE_MASTER (SOURCE, CASE_TYPE, FIRST_NAME, LAST_NAME, PHONE, EMAIL, DATE_OF_BIRTH, NATIONAL_ID, NATIONAL_ID_TYPE, STREET_ADDRESS, CITY, STATE, POSTAL, COUNTRY, CREATE_DATE, UPDATE_DATE, CREATE_BY, UPDATE_BY) VALUES (:source, :caseType, :firstName, :lastName, :phone, :email, :dateOfBirth, :nationalId, :nationalIdType, :streetAddresses, :city, :state, :postal, :country, :createDate, :updateDate, :createBy, :updateBy)  ]]></db:sql>
+			<db:input-parameters ><![CDATA[#[vars.covideCasePayload]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Set Response" doc:id="e7a2c7c7-b48a-4453-9b7c-349c48023800" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  caseID: "1503863890"
-} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+	caseID: payload[0].case_id
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[201]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Log" doc:id="54f20301-27f2-4af2-92d0-22d4222b9336" message='TransactionId: #[vars.transactionId], CorrelationId: #[vars.correlationId], message: "Completed create covid case flow", Payload: #[payload]' />
     </flow>
 	</mule>
