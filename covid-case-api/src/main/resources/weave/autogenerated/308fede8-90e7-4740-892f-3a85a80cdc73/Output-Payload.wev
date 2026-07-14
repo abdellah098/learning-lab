@@ -1,0 +1,10 @@
+%dw 2.0
+
+type auto_308fede8_90e7_4740_892f_3a85a80cdc73_Output_Payload = {|
+  code: Number, 
+  message: String, 
+  description: String, 
+  dateTime: String {"format": "yyyy-MM-dd'T'HH:mm:ss'Z'"}, 
+  transactionId: Null
+|}
+
