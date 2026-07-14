@@ -1,0 +1,8 @@
+http:
+  port: "8081"
+  timeout: "30000"
+db:
+  url: "jdbc:postgresql://localhost:5433/mule_db"
+  driver_class_name: "org.postgresql.Driver"
+  username: "postgres"
+  password: "postgres"
