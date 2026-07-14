@@ -5,4 +5,4 @@ db:
   url: "jdbc:postgresql://localhost:5433/mule_db"
   driver_class_name: "org.postgresql.Driver"
   username: "postgres"
-  password: "postgres"
+  password: "![tRA4lFBYah5Vrw+AQ0Adsw==]"
