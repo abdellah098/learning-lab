@@ -17,5 +17,5 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
     <db:config name="Database_Config" doc:name="Database Config" doc:id="6664d724-a837-41b5-a2e1-4a7b29f04a8e" >
 		<db:generic-connection url="${secure::db.url}" driverClassName="${secure::db.driver_class_name}" user="${secure::db.username}" password="${secure::db.password}" />
 	</db:config>
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="03e9483c-fffe-4eda-976a-450472576609" file="dev.yaml" key="P8xN4qL2vR7mK9cT" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="03e9483c-fffe-4eda-976a-450472576609" file="${env}.yaml" key="${encryption-key}" />
  </mule>
